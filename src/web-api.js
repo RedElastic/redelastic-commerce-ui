@@ -26,8 +26,8 @@ let products = [
   },
   {
     id:getId(),
-    name:'Radical Coffee Maker',
-    description:'The best coffee maker your ass will ever own',
+    name:'Stupid Coffee Maker',
+    description:'Tries to make tea, doesn\'t understand its place in the world',
     imgUrl:''
   },
   {

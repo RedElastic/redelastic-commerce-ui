@@ -138,6 +138,19 @@ define('messages',["exports"], function (exports) {
 
     this.quantity = quantity;
   };
+
+  var ProductAddedToCart = exports.ProductAddedToCart = function ProductAddedToCart(id, quantity) {
+    _classCallCheck(this, ProductAddedToCart);
+
+    this.id = id;
+    this.quantity = quantity;
+  };
+
+  var ProductAlreadyInCart = exports.ProductAlreadyInCart = function ProductAlreadyInCart(id) {
+    _classCallCheck(this, ProductAlreadyInCart);
+
+    this.id = id;
+  };
 });
 define('product-card',['exports', 'aurelia-framework', './shopping-cart'], function (exports, _aureliaFramework, _shoppingCart) {
   'use strict';
@@ -218,12 +231,12 @@ define('product-card',['exports', 'aurelia-framework', './shopping-cart'], funct
     };
 
     ProductCard.prototype.increaseQuantity = function increaseQuantity() {
-      this.quantity = this.quantity + 1;
+      this.quantity++;
     };
 
     ProductCard.prototype.decreaseQuantity = function decreaseQuantity() {
       if (this.quantity > 1) {
-        this.quantity = this.quantity - 1;
+        this.quantity--;
       }
     };
 
@@ -245,8 +258,8 @@ define('product-card',['exports', 'aurelia-framework', './shopping-cart'], funct
     }
   })), _class);
 });
-define('product-list',["exports", "./web-api"], function (exports, _webApi) {
-  "use strict";
+define('product-list',['exports', './web-api'], function (exports, _webApi) {
+  'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -275,10 +288,6 @@ define('product-list',["exports", "./web-api"], function (exports, _webApi) {
       this.api.getProductList().then(function (products) {
         return _this.products = products;
       });
-    };
-
-    ProductList.prototype.addToCart = function addToCart() {
-      alert("in addToCart");
     };
 
     return ProductList;
@@ -310,8 +319,13 @@ define('shopping-cart',['exports', 'aurelia-framework', 'aurelia-event-aggregato
     }
 
     ShoppingCart.prototype.addToCart = function addToCart(id, quantity) {
-      this.products.set(id, quantity);
-      this.ea.publish(new _messages.ShoppingCartQuantityUpdated(this.products.size));
+      if (this.products.has(id)) {
+        this.ea.publish(new _messages.ProductAlreadyInCart(id));
+      } else {
+        this.products.set(id, quantity);
+        this.ea.publish(new _messages.ShoppingCartQuantityUpdated(this.products.size));
+        this.ea.publish(new _messages.ProductAddedToCart(id, quantity));
+      }
     };
 
     return ShoppingCart;
@@ -354,8 +368,8 @@ define('web-api',['exports'], function (exports) {
     imgUrl: ''
   }, {
     id: getId(),
-    name: 'Radical Coffee Maker',
-    description: 'The best coffee maker your ass will ever own',
+    name: 'Stupid Coffee Maker',
+    description: 'Tries to make tea, doesn\'t understand its place in the world',
     imgUrl: ''
   }, {
     id: getId(),
@@ -418,7 +432,59 @@ define('resources/index',["exports"], function (exports) {
   exports.configure = configure;
   function configure(config) {}
 });
-define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./product-list\"></require><nav class=\"uk-navbar-container\" uk-navbar><div class=\"uk-navbar-center\"><div class=\"uk-navbar-left\"><ul class=\"uk-navbar-nav\"><li><a href=\"#\">Products</a></li><li><a href=\"#\">Deals</a></li></ul></div><a href=\"\" class=\"uk-navbar-item uk-logo\">ReCommerce</a><div class=\"uk-navbar-right\"><ul class=\"uk-navbar-nav\"><li><a href=\"#\">Account</a></li><li><a href=\"\" uk-icon=\"icon: cart\"><span class=\"uk-badge\">${cartCount}</span></a></li></ul></div></div></nav><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><h1 class=\"uk-heading-line\"><span>${message}</span></h1><product-list></product-list></div></div><div class=\"uk-section uk-padding-large uk-section-secondary\"><div class=\"uk-container uk-text-center\">A demo by your friends at RedElastic.</div></div></template>"; });
+define('alert-banner',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.AlertBanner = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var AlertBanner = exports.AlertBanner = (_temp = _class = function () {
+    function AlertBanner(ea) {
+      var _this = this;
+
+      _classCallCheck(this, AlertBanner);
+
+      this.enabled = false;
+      this.message = "";
+      this.alertType = "";
+      this.ea = ea;
+
+      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
+        _this.message = "Product ID " + msg.id + " was added to your cart.";
+        _this.flashAlert("uk-alert-success");
+      });
+
+      ea.subscribe(_messages.ProductAlreadyInCart, function (msg) {
+        _this.message = "Product ID " + msg.id + " is already in your cart.";
+        _this.flashAlert("uk-alert-warning");
+      });
+    }
+
+    AlertBanner.prototype.flashAlert = function flashAlert(alertType) {
+      var _this2 = this;
+
+      this.enabled = true;
+      this.alertType = alertType;
+      setTimeout(function () {
+        _this2.enabled = false;
+      }, 2000);
+    };
+
+    return AlertBanner;
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
+});
+define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./product-list\"></require><require from=\"./alert-banner\"></require><nav class=\"uk-navbar-container\" uk-navbar><div class=\"uk-navbar-center\"><div class=\"uk-navbar-left\"><ul class=\"uk-navbar-nav\"><li><a href=\"#\">Products</a></li><li><a href=\"#\">Deals</a></li></ul></div><a href=\"\" class=\"uk-navbar-item uk-logo\">ReCommerce</a><div class=\"uk-navbar-right\"><ul class=\"uk-navbar-nav\"><li><a href=\"#\">Account</a></li><li><a href=\"#\" uk-icon=\"icon: cart\"><span class=\"uk-badge\">${cartCount}</span></a></li></ul></div></div></nav><alert-banner></alert-banner><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><h1 class=\"uk-heading-line\"><span>${message}</span></h1><product-list></product-list></div></div><div class=\"uk-section uk-padding-large uk-section-secondary\"><div class=\"uk-container uk-text-center\">A demo by your friends at RedElastic.</div></div></template>"; });
 define('text!product-card.html', ['module'], function(module) { module.exports = "<template><div class=\"uk-card uk-card-body uk-card-default\"><div class=\"uk-card-media-top\"><img width=\"600\" height=\"400\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNi4wLjQsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkViZW5lXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iNjAwcHgiIGhlaWdodD0iNDAwcHgiIHZpZXdCb3g9IjAgMCA2MDAgNDAwIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA2MDAgNDAwIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxyZWN0IGZpbGw9IiNGNUY1RjUiIHdpZHRoPSI2MDAiIGhlaWdodD0iNDAwIi8+DQo8ZyBvcGFjaXR5PSIwLjciPg0KCTxwYXRoIGZpbGw9IiNEOEQ4RDgiIGQ9Ik0yMjguMTg0LDE0My41djExM2gxNDMuNjMydi0xMTNIMjI4LjE4NHogTTM2MC4yNDQsMjQ0LjI0N0gyNDAuNDM3di04OC40OTRoMTE5LjgwOEwzNjAuMjQ0LDI0NC4yNDcNCgkJTDM2MC4yNDQsMjQ0LjI0N3oiLz4NCgk8cG9seWdvbiBmaWxsPSIjRDhEOEQ4IiBwb2ludHM9IjI0Ni44ODEsMjM0LjcxNyAyNzEuNTcyLDIwOC43NjQgMjgwLjgyNCwyMTIuNzY4IDMxMC4wMTYsMTgxLjY4OCAzMjEuNTA1LDE5NS40MzQgDQoJCTMyNi42ODksMTkyLjMwMyAzNTQuNzQ2LDIzNC43MTcgCSIvPg0KCTxjaXJjbGUgZmlsbD0iI0Q4RDhEOCIgY3g9IjI3NS40MDUiIGN5PSIxNzguMjU3IiByPSIxMC43ODciLz4NCjwvZz4NCjwvc3ZnPg0K\" alt=\"\"></div><h3 class=\"uk-card-title uk-margin-small-top uk-margin-small-bottom\">${name}</h3><div class=\"uk-margin-small-top\">${description}</div></div><button click.delegate=\"addToCart()\" class=\"uk-button uk-button-primary uk-width-1-1\">Add to Cart</button><div class=\"uk-child-width-1-3 uk-grid-collapse uk-margin-top\" uk-grid><div class=\"uk-text-left uk-margin-remove\"><button click.delegate=\"decreaseQuantity()\" class=\"uk-button uk-button-small uk-button-default\">-</button></div><div class=\"uk-text-left uk-text-small uk-margin-remove\">Quantity: <span class=\"uk-text-bold\">${quantity}</span></div><div class=\"uk-text-right uk-margin-remove\"><button click.delegate=\"increaseQuantity()\" class=\"uk-button uk-button-small uk-button-default\">+</button></div></div></template>"; });
 define('text!product-list.html', ['module'], function(module) { module.exports = "<template><require from=\"./product-card\"></require><div class=\"product-list uk-grid-large\" uk-grid uk-height-match=\"target: > div > .uk-card\"><div repeat.for=\"product of products\" class=\"uk-width-1-3@m uk-width-1-4@l\"><product-card id=\"${product.id}\" name=\"${product.name}\" description=\"${product.description}\"></product-card></div></div></template>"; });
+define('text!alert-banner.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"enabled\" class=\"uk-card uk-card-body uk-position-top-right uk-position-fixed\" style=\"z-index:980;width:500px\"><div class=\"${alertType} uk-box-shadow-medium\" uk-alert><a class=\"uk-alert-close\" uk-close></a><p>${message}</p></div></div></template>"; });
 //# sourceMappingURL=app-bundle.js.map

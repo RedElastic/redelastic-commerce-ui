@@ -11,8 +11,4 @@ export class ProductList {
   created(){
     this.api.getProductList().then(products => this.products = products);
   }
-
-  addToCart(){
-    alert("in addToCart");
-  }
 }

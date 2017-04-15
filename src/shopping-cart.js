@@ -1,6 +1,6 @@
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ShoppingCartQuantityUpdated} from './messages';
+import {ShoppingCartQuantityUpdated, ProductAddedToCart, ProductAlreadyInCart} from './messages';
 
 export class ShoppingCart {  
   static inject = [EventAggregator];
@@ -12,7 +12,12 @@ export class ShoppingCart {
   }
 
   addToCart(id, quantity){
-    this.products.set(id, quantity);
-    this.ea.publish(new ShoppingCartQuantityUpdated(this.products.size));
+    if (this.products.has(id)) {
+      this.ea.publish(new ProductAlreadyInCart(id));
+    } else {
+      this.products.set(id, quantity);
+      this.ea.publish(new ShoppingCartQuantityUpdated(this.products.size));
+      this.ea.publish(new ProductAddedToCart(id, quantity));
+    }
   }
 }
