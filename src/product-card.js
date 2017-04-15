@@ -1,13 +1,20 @@
 import {bindable} from 'aurelia-framework';
+import {ShoppingCart} from './shopping-cart';
 
-export class ProductCard {    
+export class ProductCard { 
+  static inject = [ShoppingCart];  
+
+  constructor(cart){
+    this.cart = cart;
+  }
+
   @bindable id = "";
   @bindable name = "";
   @bindable description = "";    
   quantity = 1;
     
   addToCart(){
-    alert("in addToCart for: " + this.id);
+    this.cart.addToCart(this.id, this.quantity);
   }
 
   increaseQuantity(){
