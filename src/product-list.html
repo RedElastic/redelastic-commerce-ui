@@ -1,0 +1,9 @@
+<template>
+    <require from="./product-card"></require>
+
+    <div class="product-list uk-grid-large" uk-grid uk-height-match="target: > div > .uk-card">
+        <div repeat.for="product of products" class="uk-width-1-3@m uk-width-1-4@l">
+            <product-card id="${product.id}" name="${product.name}" description="${product.description}"></product-card>
+        </div>
+    </div>
+</template>
