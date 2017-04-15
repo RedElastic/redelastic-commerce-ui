@@ -1,5 +1,5 @@
-export class ProductAddedToCart {
-  constructor(id) {
-    this.id = id;
+export class ShoppingCartQuantityUpdated {
+  constructor(quantity) {
+    this.quantity = quantity;
   }
 }

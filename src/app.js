@@ -1,5 +1,5 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ProductAddedToCart} from './messages';
+import {ShoppingCartQuantityUpdated} from './messages';
 import {bindable} from 'aurelia-framework';
 
 export class App {
@@ -9,8 +9,8 @@ export class App {
     this.ea = ea;
     this.message = 'Products';
 
-    ea.subscribe(ProductAddedToCart, msg => {
-      this.cartCount++;
+    ea.subscribe(ShoppingCartQuantityUpdated, msg => {
+      this.cartCount = msg.quantity;
     });
   }
 

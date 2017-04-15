@@ -1,6 +1,6 @@
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ProductAddedToCart} from './messages';
+import {ShoppingCartQuantityUpdated} from './messages';
 
 export class ShoppingCart {  
   static inject = [EventAggregator];
@@ -13,6 +13,6 @@ export class ShoppingCart {
 
   addToCart(id, quantity){
     this.products.set(id, quantity);
-    this.ea.publish(new ProductAddedToCart(id));
+    this.ea.publish(new ShoppingCartQuantityUpdated(this.products.size));
   }
 }
