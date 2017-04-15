@@ -1,37 +1,32 @@
 let latency = 200;
-let id = 0;
-
-function getId(){
-  return ++id;
-}
 
 let products = [
   {
-    id:getId(),
+    id:"1",
     name:'Radical Coffee Maker',
     description:'The best coffee maker your ass will ever own',
     imgUrl:''
   },
   {
-    id:getId(),
+    id:"2",
     name:'The Worst Shit Ever',
     description:'The worst coffee maker your ass will ever own',
     imgUrl:''
   },
   {
-    id:getId(),
+    id:"3",
     name:'Some Gnarly Product',
     description:'You dont want to use this thing or buy it or nothing',
     imgUrl:''
   },
   {
-    id:getId(),
+    id:"4",
     name:'Stupid Coffee Maker',
     description:'Tries to make tea, doesn\'t understand its place in the world',
     imgUrl:''
   },
   {
-    id:getId(),
+    id:"5",
     name:'Tub of Butter',
     description:'I don\'t think you\'re ready for this jelly',
     imgUrl:''

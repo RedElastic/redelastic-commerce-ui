@@ -1,0 +1,33 @@
+<template>
+  <div class="cart-list uk-description-list uk-margin-small-bottom">
+    <dt>Crap <a href="#"><span class="uk-badge">x</span></a></dt>
+    <dd>
+      <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+        <div class="uk-width-expand" uk-leader>Quantity</div>
+        <div>
+          <a href="#">-</a>
+          <span>${quantity}</span>
+          <a href="#">+</a>
+        </div>
+      </div>
+      <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+        <div class="uk-width-expand" uk-leader>Price (each)</div>
+        <div>$10.00</div>
+      </div>
+      <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+        <div class="uk-width-expand" uk-leader>Price (subtotal)</div>
+        <div>$40.00</div>
+      </div>
+    </dd>
+  </div>
+
+  <style>
+    .cart-list dt {
+      color: #ecf0f1;
+    }
+    
+    .cart-list dd {
+      font-size: 0.8em;
+    }    
+  </style>  
+</template>

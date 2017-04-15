@@ -18,12 +18,12 @@ export class ProductCard {
   }
 
   increaseQuantity(){
-      this.quantity++;
+    this.quantity++;
   }
 
   decreaseQuantity(){
-      if (this.quantity > 1) {
-        this.quantity--;
-      }
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
   }
 }

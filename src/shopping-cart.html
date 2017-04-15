@@ -1,0 +1,43 @@
+<template>
+  <require from="./shopping-cart-item"></require>
+
+  <div repeat.for="id of cartArr">${id}</div>
+
+  <div id="shopping-cart" uk-offcanvas>
+    <div class="uk-offcanvas-bar">
+      <button class="uk-offcanvas-close" type="button" uk-close></button>
+      <div class="uk-text-center uk-margin-medium-bottom">
+        <h3>Your Cart</h3>
+        <button class="uk-button uk-button-primary">Checkout</button>
+      </div>
+                  
+      <shopping-cart-item id.bind="id" quantity.bind="quantity" repeat.for="[id, quantity] of cart"></shopping-cart-item>      
+            
+      <h4 class="uk-margin-small-top">Total</h4>
+      <div id="totals">
+        <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+          <div class="uk-width-expand" uk-leader>Subtotal</div>
+          <div>$69.69</div>
+        </div>
+        <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+          <div class="uk-width-expand" uk-leader>Taxes (13%)</div>
+          <div>$69.69</div>
+        </div>
+        <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+          <div class="uk-width-expand" uk-leader>Shipping</div>
+          <div>$12.69</div>
+        </div>
+        <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+          <div class="uk-width-expand" uk-leader>Total</div>
+          <div>$99.99</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #totals {
+      font-size: 0.9em;
+    }
+  </style>
+</template>
