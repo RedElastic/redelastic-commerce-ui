@@ -1,6 +1,6 @@
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ProductRemovedFromCart} from './messages';
+import {ProductRemovedFromCart, CartItemQuantityUpdated, ProductAddedToCart} from './messages';
 
 export class ShoppingCartItem {  
   static inject = [EventAggregator];
@@ -12,13 +12,37 @@ export class ShoppingCartItem {
 
   constructor(ea){
     this.ea = ea;
+    this.subtotal = 0;
+
+    ea.subscribe(ProductAddedToCart, msg => {            
+      this.recomputeSubtotal();
+    });
   }  
 
-  getSubtotal(){
-    return this.quantity * this.price;
+  attached(){
+    this.recomputeSubtotal();
+  }
+
+  recomputeSubtotal(){
+    this.subtotal = this.quantity * this.price;
   }
 
   removeFromCart(){
     this.ea.publish(new ProductRemovedFromCart(this.id));      
+    this.recomputeSubtotal();
+  }
+
+  decreaseQuantity(){
+    if (this.quantity > 1) {
+      this.quantity--;
+      this.ea.publish(new CartItemQuantityUpdated(this.id, this.quantity));
+      this.recomputeSubtotal();
+    }
+  }
+
+  increaseQuantity(){
+    this.quantity++;
+    this.ea.publish(new CartItemQuantityUpdated(this.id, this.quantity));
+    this.recomputeSubtotal();
   }
 }

@@ -224,6 +224,13 @@ define('messages',["exports"], function (exports) {
     this.quantity = quantity;
   };
 
+  var CartItemQuantityUpdated = exports.CartItemQuantityUpdated = function CartItemQuantityUpdated(id, quantity) {
+    _classCallCheck(this, CartItemQuantityUpdated);
+
+    this.id = id;
+    this.quantity = quantity;
+  };
+
   var ProductAddedToCart = exports.ProductAddedToCart = function ProductAddedToCart(id, data) {
     _classCallCheck(this, ProductAddedToCart);
 
@@ -457,6 +464,8 @@ define('shopping-cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggr
 
   var ShoppingCartItem = exports.ShoppingCartItem = (_class = (_temp = _class2 = function () {
     function ShoppingCartItem(ea) {
+      var _this = this;
+
       _classCallCheck(this, ShoppingCartItem);
 
       _initDefineProp(this, 'id', _descriptor, this);
@@ -468,14 +477,38 @@ define('shopping-cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggr
       _initDefineProp(this, 'price', _descriptor4, this);
 
       this.ea = ea;
+      this.subtotal = 0;
+
+      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
+        _this.recomputeSubtotal();
+      });
     }
 
-    ShoppingCartItem.prototype.getSubtotal = function getSubtotal() {
-      return this.quantity * this.price;
+    ShoppingCartItem.prototype.attached = function attached() {
+      this.recomputeSubtotal();
+    };
+
+    ShoppingCartItem.prototype.recomputeSubtotal = function recomputeSubtotal() {
+      this.subtotal = this.quantity * this.price;
     };
 
     ShoppingCartItem.prototype.removeFromCart = function removeFromCart() {
       this.ea.publish(new _messages.ProductRemovedFromCart(this.id));
+      this.recomputeSubtotal();
+    };
+
+    ShoppingCartItem.prototype.decreaseQuantity = function decreaseQuantity() {
+      if (this.quantity > 1) {
+        this.quantity--;
+        this.ea.publish(new _messages.CartItemQuantityUpdated(this.id, this.quantity));
+        this.recomputeSubtotal();
+      }
+    };
+
+    ShoppingCartItem.prototype.increaseQuantity = function increaseQuantity() {
+      this.quantity++;
+      this.ea.publish(new _messages.CartItemQuantityUpdated(this.id, this.quantity));
+      this.recomputeSubtotal();
     };
 
     return ShoppingCartItem;
@@ -573,6 +606,13 @@ define('shopping-cart',['exports', 'aurelia-framework', 'aurelia-event-aggregato
       });
 
       ea.subscribe(_messages.ProductAddedToCart, function (msg) {
+        _this.recomputeTotals();
+      });
+
+      ea.subscribe(_messages.CartItemQuantityUpdated, function (msg) {
+        var data = _this.cart.get(msg.id);
+        data.quantity = msg.quantity;
+        _this.cart.set(msg.id, data);
         _this.recomputeTotals();
       });
     }
@@ -726,6 +766,6 @@ define('text!alert-banner.html', ['module'], function(module) { module.exports =
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./product-list\"></require><require from=\"./alert-banner\"></require><require from=\"./shopping-cart\"></require><nav class=\"uk-navbar-container\" uk-navbar><div class=\"uk-navbar-center\"><div class=\"uk-navbar-left\"><ul class=\"uk-navbar-nav\"><li><a href=\"#\">Products</a></li><li><a href=\"#\">Deals</a></li></ul></div><a href=\"\" class=\"uk-navbar-item uk-logo\">ReCommerce</a><div class=\"uk-navbar-right\"><ul class=\"uk-navbar-nav\"><li><a href=\"#\">Account</a></li><li><a href=\"#shopping-cart\" uk-icon=\"icon: cart\" uk-toggle><span class=\"uk-badge\">${cartCount}</span></a></li></ul></div></div></nav><alert-banner></alert-banner><shopping-cart></shopping-cart><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><h1 class=\"uk-heading-line\"><span>${message}</span></h1><product-list></product-list></div></div><div class=\"uk-section uk-padding-large uk-section-secondary\"><div class=\"uk-container uk-text-center\">A demo by your friends at RedElastic.</div></div></template>"; });
 define('text!product-card.html', ['module'], function(module) { module.exports = "<template><require from=\"./currency-format\"></require><div class=\"uk-card uk-card-body uk-card-default\"><div class=\"uk-card-media-top\"><img width=\"600\" height=\"400\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNi4wLjQsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkViZW5lXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iNjAwcHgiIGhlaWdodD0iNDAwcHgiIHZpZXdCb3g9IjAgMCA2MDAgNDAwIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA2MDAgNDAwIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxyZWN0IGZpbGw9IiNGNUY1RjUiIHdpZHRoPSI2MDAiIGhlaWdodD0iNDAwIi8+DQo8ZyBvcGFjaXR5PSIwLjciPg0KCTxwYXRoIGZpbGw9IiNEOEQ4RDgiIGQ9Ik0yMjguMTg0LDE0My41djExM2gxNDMuNjMydi0xMTNIMjI4LjE4NHogTTM2MC4yNDQsMjQ0LjI0N0gyNDAuNDM3di04OC40OTRoMTE5LjgwOEwzNjAuMjQ0LDI0NC4yNDcNCgkJTDM2MC4yNDQsMjQ0LjI0N3oiLz4NCgk8cG9seWdvbiBmaWxsPSIjRDhEOEQ4IiBwb2ludHM9IjI0Ni44ODEsMjM0LjcxNyAyNzEuNTcyLDIwOC43NjQgMjgwLjgyNCwyMTIuNzY4IDMxMC4wMTYsMTgxLjY4OCAzMjEuNTA1LDE5NS40MzQgDQoJCTMyNi42ODksMTkyLjMwMyAzNTQuNzQ2LDIzNC43MTcgCSIvPg0KCTxjaXJjbGUgZmlsbD0iI0Q4RDhEOCIgY3g9IjI3NS40MDUiIGN5PSIxNzguMjU3IiByPSIxMC43ODciLz4NCjwvZz4NCjwvc3ZnPg0K\" alt=\"\"></div><h3 class=\"uk-card-title uk-margin-small-top uk-margin-small-bottom\">${name}</h3><p class=\"uk-text-small\">${price | currencyFormat}</p><div class=\"uk-margin-small-top\">${description}</div></div><button click.delegate=\"addToCart()\" class=\"uk-button uk-button-primary uk-width-1-1\">Add to Cart</button><div class=\"uk-child-width-1-3 uk-grid-collapse uk-margin-top\" uk-grid><div class=\"uk-text-left uk-margin-remove\"><button click.delegate=\"decreaseQuantity()\" class=\"uk-button uk-button-small uk-button-default\">-</button></div><div class=\"uk-text-left uk-text-small uk-margin-remove\">Quantity: <span class=\"uk-text-bold\">${quantity}</span></div><div class=\"uk-text-right uk-margin-remove\"><button click.delegate=\"increaseQuantity()\" class=\"uk-button uk-button-small uk-button-default\">+</button></div></div></template>"; });
 define('text!product-list.html', ['module'], function(module) { module.exports = "<template><require from=\"./product-card\"></require><div class=\"product-list uk-grid-large\" uk-grid uk-height-match=\"target: > div > .uk-card\"><div repeat.for=\"product of products\" class=\"uk-width-1-2@s uk-width-1-3@m\"><product-card id=\"${product.id}\" name=\"${product.name}\" description=\"${product.description}\" price=\"${product.price}\"></product-card></div></div></template>"; });
-define('text!shopping-cart-item.html', ['module'], function(module) { module.exports = "<template><require from=\"./currency-format\"></require><div class=\"cart-list uk-description-list uk-margin-small-bottom\"><dt>${name} <a click.delegate=\"removeFromCart()\"><span class=\"uk-badge\">x</span></a></dt><dd><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Quantity</div><div><a href=\"#\">-</a> <span>${quantity}</span> <a href=\"#\">+</a></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (each)</div><div>${price | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (subtotal)</div><div>${getSubtotal() | currencyFormat}</div></div></dd></div><style>.cart-list dt{color:#ecf0f1}.cart-list dd{font-size:.8em}</style></template>"; });
+define('text!shopping-cart-item.html', ['module'], function(module) { module.exports = "<template><require from=\"./currency-format\"></require><div class=\"cart-list uk-description-list uk-margin-small-bottom\"><dt>${name} <a click.delegate=\"removeFromCart()\"><span class=\"uk-badge\">x</span></a></dt><dd><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Quantity</div><div><a click.delegate=\"decreaseQuantity()\">-</a> <span>${quantity}</span> <a click.delegate=\"increaseQuantity()\">+</a></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (each)</div><div>${price | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (subtotal)</div><div>${subtotal | currencyFormat}</div></div></dd></div><style>.cart-list dt{color:#ecf0f1}.cart-list dd{font-size:.8em}</style></template>"; });
 define('text!shopping-cart.html', ['module'], function(module) { module.exports = "<template><require from=\"./shopping-cart-item\"></require><require from=\"./currency-format\"></require><div id=\"shopping-cart\" uk-offcanvas><div class=\"uk-offcanvas-bar\"><button class=\"uk-offcanvas-close\" type=\"button\" uk-close></button><div class=\"uk-text-center uk-margin-medium-bottom\"><h3>Your Cart</h3><button class=\"uk-button uk-button-primary\">Checkout</button></div><div class=\"uk-margin-medium-bottom\"><shopping-cart-item id.bind=\"id\" name.bind=\"data.name\" quantity.bind=\"data.quantity\" price.bind=\"data.price\" repeat.for=\"[id, data] of cart\"></shopping-cart-item></div><h4 class=\"uk-margin-small-top\">Total</h4><div id=\"totals\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>${shipping | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${total | currencyFormat}</div></div></div></div></div><style>#totals{font-size:.9em}</style></template>"; });
 //# sourceMappingURL=app-bundle.js.map

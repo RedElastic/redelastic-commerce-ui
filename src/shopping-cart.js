@@ -1,6 +1,6 @@
 import {bindable, observable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ShoppingCartQuantityUpdated, ProductAddedToCart, ProductAlreadyInCart, ProductRemovedFromCart} from './messages';
+import {ShoppingCartQuantityUpdated, ProductAddedToCart, ProductAlreadyInCart, ProductRemovedFromCart, CartItemQuantityUpdated} from './messages';
 
 export class ShoppingCart {  
   static inject = [EventAggregator];
@@ -21,6 +21,13 @@ export class ShoppingCart {
     });
 
     ea.subscribe(ProductAddedToCart, msg => {
+      this.recomputeTotals();
+    });
+
+    ea.subscribe(CartItemQuantityUpdated, msg => {
+      let data = this.cart.get(msg.id);
+      data.quantity = msg.quantity;
+      this.cart.set(msg.id, data);
       this.recomputeTotals();
     });
   }

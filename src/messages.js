@@ -4,6 +4,13 @@ export class ShoppingCartQuantityUpdated {
   }
 }
 
+export class CartItemQuantityUpdated {
+  constructor(id, quantity) {
+    this.id = id;
+    this.quantity = quantity;
+  }
+}
+
 export class ProductAddedToCart {
   constructor(id, data) {
     this.id = id;
