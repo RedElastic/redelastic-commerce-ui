@@ -10,11 +10,18 @@ export class ProductCard {
 
   @bindable id = "";
   @bindable name = "";
-  @bindable description = "";    
+  @bindable description = ""; 
+  @bindable price;   
   quantity = 1;
     
   addToCart(){
-    this.cart.addToCart(this.id, this.quantity);
+    let data = {      
+      name: this.name,
+      description: this.description,
+      quantity: this.quantity,
+      price: this.price
+    };
+    this.cart.addToCart(this.id, data);
   }
 
   increaseQuantity(){
@@ -25,5 +32,5 @@ export class ProductCard {
     if (this.quantity > 1) {
       this.quantity--;
     }
-  }
+  }  
 }

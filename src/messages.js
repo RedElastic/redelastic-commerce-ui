@@ -5,13 +5,19 @@ export class ShoppingCartQuantityUpdated {
 }
 
 export class ProductAddedToCart {
-  constructor(id, quantity) {
+  constructor(id, data) {
     this.id = id;
-    this.quantity = quantity;
+    this.data = data;
   }
 }
 
 export class ProductAlreadyInCart {
+  constructor(id) {
+    this.id = id;
+  }
+}
+
+export class ProductRemovedFromCart {
   constructor(id) {
     this.id = id;
   }

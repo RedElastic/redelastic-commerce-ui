@@ -1,7 +1,6 @@
 <template>
   <require from="./shopping-cart-item"></require>
-
-  <div repeat.for="id of cartArr">${id}</div>
+  <require from="./currency-format"></require>
 
   <div id="shopping-cart" uk-offcanvas>
     <div class="uk-offcanvas-bar">
@@ -11,25 +10,27 @@
         <button class="uk-button uk-button-primary">Checkout</button>
       </div>
                   
-      <shopping-cart-item id.bind="id" quantity.bind="quantity" repeat.for="[id, quantity] of cart"></shopping-cart-item>      
+      <div class="uk-margin-medium-bottom">                  
+        <shopping-cart-item id.bind="id" name.bind="data.name" quantity.bind="data.quantity" price.bind="data.price" repeat.for="[id, data] of cart"></shopping-cart-item>
+      </div>
             
       <h4 class="uk-margin-small-top">Total</h4>
       <div id="totals">
         <div class="uk-grid-small uk-margin-remove-top" uk-grid>
           <div class="uk-width-expand" uk-leader>Subtotal</div>
-          <div>$69.69</div>
+          <div>${subtotal | currencyFormat}</div>
         </div>
         <div class="uk-grid-small uk-margin-remove-top" uk-grid>
           <div class="uk-width-expand" uk-leader>Taxes (13%)</div>
-          <div>$69.69</div>
+          <div>${taxes | currencyFormat}</div>
         </div>
         <div class="uk-grid-small uk-margin-remove-top" uk-grid>
           <div class="uk-width-expand" uk-leader>Shipping</div>
-          <div>$12.69</div>
+          <div>${shipping | currencyFormat}</div>
         </div>
         <div class="uk-grid-small uk-margin-remove-top" uk-grid>
           <div class="uk-width-expand" uk-leader>Total</div>
-          <div>$99.99</div>
+          <div>${total | currencyFormat}</div>
         </div>
       </div>
     </div>

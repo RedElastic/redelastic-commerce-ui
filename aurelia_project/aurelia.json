@@ -118,6 +118,7 @@
           "aurelia-task-queue",
           "aurelia-templating",
           "aurelia-templating-binding",
+          "numeral",
           "text",
           {
             "name": "aurelia-templating-resources",
