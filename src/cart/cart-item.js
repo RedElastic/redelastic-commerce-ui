@@ -1,8 +1,8 @@
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ProductRemovedFromCart, CartItemQuantityUpdated, ProductAddedToCart} from './messages';
+import {ProductRemovedFromCart, CartItemQuantityUpdated, ProductAddedToCart} from '../resources/messages';
 
-export class ShoppingCartItem {  
+export class CartItem {  
   static inject = [EventAggregator];
 
   @bindable id;

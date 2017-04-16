@@ -1,4 +1,4 @@
-import {WebAPI} from './web-api';
+import {WebAPI} from '../resources/web-api';
 
 export class ProductList {
   static inject = [WebAPI];

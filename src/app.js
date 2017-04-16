@@ -1,18 +1,15 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {ShoppingCartQuantityUpdated} from './messages';
-import {bindable} from 'aurelia-framework';
+import {RouterConfiguration, Router} from 'aurelia-router';
 
 export class App {
-  static inject = [EventAggregator];
+  static inject = [RouterConfiguration, Router];
 
-  constructor(ea) {
-    this.ea = ea;
-    this.message = 'Products';
-
-    ea.subscribe(ShoppingCartQuantityUpdated, msg => {
-      this.cartCount = msg.quantity;
-    });
+  configureRouter(config, router) {
+    this.router = router;
+    config.title = 'ReCommerce';
+    config.map([
+      { route: ['', 'home'],    name: 'home',       moduleId: 'home/home' },
+      { route: 'cart',          name: 'cart',       moduleId: 'cart/cart' },
+      { route: 'cart/checkout', name: 'checkout',   moduleId: 'cart/checkout' }
+    ]);    
   }
-
-  @bindable cartCount = 0;
 }

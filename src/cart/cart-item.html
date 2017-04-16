@@ -1,0 +1,35 @@
+<template>
+  <require from="../resources/currency-format"></require>
+
+  <div class="uk-margin-medium-bottom">
+
+    <h3 class="uk-margin-small-bottom">${name}</h3>
+
+    <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+      <div class="uk-width-expand" uk-leader>Quantity</div>
+      <div>
+        <span>${quantity}</span>
+      </div>
+    </div>
+
+    <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+      <div class="uk-width-expand" uk-leader>Price (each)</div>
+      <div>${price | currencyFormat}</div>
+    </div>
+
+    <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+      <div class="uk-width-expand" uk-leader>Price (subtotal)</div>
+      <div>${subtotal | currencyFormat}</div>
+    </div>
+
+    <div class="uk-margin-small-top" uk-grid>
+      <div class="uk-width-1-2">
+        <button class="uk-button uk-button-small uk-button-default" click.delegate="decreaseQuantity()">-</button>
+        <button class="uk-button uk-button-small uk-button-default" click.delegate="increaseQuantity()">+</button>
+      </div>
+      <div class="uk-width-1-2 uk-text-right">
+        <button class="uk-button uk-button-small uk-button-danger" click.delegate="removeFromCart()">x</button>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,11 +1,11 @@
 import {bindable, observable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ShoppingCartQuantityUpdated, ProductAddedToCart, ProductAlreadyInCart, ProductRemovedFromCart, CartItemQuantityUpdated} from './messages';
+import {ShoppingCartQuantityUpdated, ProductAddedToCart, ProductAlreadyInCart, ProductRemovedFromCart, CartItemQuantityUpdated} from '../resources/messages';
 
-export class ShoppingCart {  
+export class Cart {  
   static inject = [EventAggregator];
 
-  @observable cart = new Map();
+  @observable items = new Map();
   
   constructor(ea){
     this.ea = ea;
@@ -15,8 +15,8 @@ export class ShoppingCart {
     this.subtotal = 0;
 
     ea.subscribe(ProductRemovedFromCart, msg => {
-      this.cart.delete(msg.id);
-      this.ea.publish(new ShoppingCartQuantityUpdated(this.cart.size));
+      this.items.delete(msg.id);
+      this.ea.publish(new ShoppingCartQuantityUpdated(this.items.size));
       this.recomputeTotals();
     });
 
@@ -25,26 +25,30 @@ export class ShoppingCart {
     });
 
     ea.subscribe(CartItemQuantityUpdated, msg => {
-      let data = this.cart.get(msg.id);
+      let data = this.items.get(msg.id);
       data.quantity = msg.quantity;
-      this.cart.set(msg.id, data);
+      this.items.set(msg.id, data);
       this.recomputeTotals();
-    });
+    });    
+  }
+
+  attached(){
+    this.recomputeTotals();
   }
 
   addToCart(id, data){
-    if (this.cart.has(id)) {
+    if (this.items.has(id)) {
       this.ea.publish(new ProductAlreadyInCart(id, data));
     } else {      
-      this.cart.set(id, data);
-      this.ea.publish(new ShoppingCartQuantityUpdated(this.cart.size));
+      this.items.set(id, data);
+      this.ea.publish(new ShoppingCartQuantityUpdated(this.items.size));
       this.ea.publish(new ProductAddedToCart(id, data));            
     }    
   }
 
   recomputeTotals(){
     let subtotal = 0;
-    for (var [id, data] of this.cart) {
+    for (var [id, data] of this.items) {
       subtotal = subtotal + (data.price * data.quantity);
     }
     this.subtotal = subtotal;

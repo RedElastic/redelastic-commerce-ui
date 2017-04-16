@@ -1,8 +1,8 @@
 import {bindable} from 'aurelia-framework';
-import {ShoppingCart} from './shopping-cart';
+import {Cart} from '../cart/cart';
 
 export class ProductCard { 
-  static inject = [ShoppingCart];  
+  static inject = [Cart];  
 
   constructor(cart){
     this.cart = cart;
