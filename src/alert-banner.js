@@ -13,12 +13,12 @@ export class AlertBanner {
     this.ea = ea;
 
     ea.subscribe(ProductAddedToCart, msg => {
-      this.message = "Product ID " + msg.id + " was added to your cart.";
+      this.message = msg.data.name + " was added to your cart.";
       this.flashAlert("uk-alert-success");
     });
 
     ea.subscribe(ProductAlreadyInCart, msg => {
-      this.message = "Product ID " + msg.id + " is already in your cart.";
+      this.message = msg.data.name + " is already in your cart.";
       this.flashAlert("uk-alert-warning");
     });
   }

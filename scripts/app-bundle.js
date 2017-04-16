@@ -26,12 +26,12 @@ define('alert-banner',['exports', 'aurelia-framework', 'aurelia-event-aggregator
       this.ea = ea;
 
       ea.subscribe(_messages.ProductAddedToCart, function (msg) {
-        _this.message = "Product ID " + msg.id + " was added to your cart.";
+        _this.message = msg.data.name + " was added to your cart.";
         _this.flashAlert("uk-alert-success");
       });
 
       ea.subscribe(_messages.ProductAlreadyInCart, function (msg) {
-        _this.message = "Product ID " + msg.id + " is already in your cart.";
+        _this.message = msg.data.name + " is already in your cart.";
         _this.flashAlert("uk-alert-warning");
       });
     }
