@@ -27,7 +27,7 @@ export class ShoppingCart {
 
   addToCart(id, data){
     if (this.cart.has(id)) {
-      this.ea.publish(new ProductAlreadyInCart(id));
+      this.ea.publish(new ProductAlreadyInCart(id, data));
     } else {      
       this.cart.set(id, data);
       this.ea.publish(new ShoppingCartQuantityUpdated(this.cart.size));

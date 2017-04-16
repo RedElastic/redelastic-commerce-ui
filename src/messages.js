@@ -12,8 +12,9 @@ export class ProductAddedToCart {
 }
 
 export class ProductAlreadyInCart {
-  constructor(id) {
+  constructor(id, data) {
     this.id = id;
+    this.data = data;
   }
 }
 

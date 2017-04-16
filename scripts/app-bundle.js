@@ -231,10 +231,11 @@ define('messages',["exports"], function (exports) {
     this.data = data;
   };
 
-  var ProductAlreadyInCart = exports.ProductAlreadyInCart = function ProductAlreadyInCart(id) {
+  var ProductAlreadyInCart = exports.ProductAlreadyInCart = function ProductAlreadyInCart(id, data) {
     _classCallCheck(this, ProductAlreadyInCart);
 
     this.id = id;
+    this.data = data;
   };
 
   var ProductRemovedFromCart = exports.ProductRemovedFromCart = function ProductRemovedFromCart(id) {
@@ -578,7 +579,7 @@ define('shopping-cart',['exports', 'aurelia-framework', 'aurelia-event-aggregato
 
     ShoppingCart.prototype.addToCart = function addToCart(id, data) {
       if (this.cart.has(id)) {
-        this.ea.publish(new _messages.ProductAlreadyInCart(id));
+        this.ea.publish(new _messages.ProductAlreadyInCart(id, data));
       } else {
         this.cart.set(id, data);
         this.ea.publish(new _messages.ShoppingCartQuantityUpdated(this.cart.size));
