@@ -71,297 +71,6 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
-define('cart/cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.CartItem = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _class2, _temp;
-
-  var CartItem = exports.CartItem = (_class = (_temp = _class2 = function () {
-    function CartItem(ea) {
-      var _this = this;
-
-      _classCallCheck(this, CartItem);
-
-      _initDefineProp(this, 'id', _descriptor, this);
-
-      _initDefineProp(this, 'name', _descriptor2, this);
-
-      _initDefineProp(this, 'quantity', _descriptor3, this);
-
-      _initDefineProp(this, 'price', _descriptor4, this);
-
-      this.ea = ea;
-      this.subtotal = 0;
-
-      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
-        _this.recomputeSubtotal();
-      });
-    }
-
-    CartItem.prototype.attached = function attached() {
-      this.recomputeSubtotal();
-    };
-
-    CartItem.prototype.recomputeSubtotal = function recomputeSubtotal() {
-      this.subtotal = this.quantity * this.price;
-    };
-
-    CartItem.prototype.removeFromCart = function removeFromCart() {
-      this.ea.publish(new _messages.ProductRemovedFromCart(this.id));
-      this.recomputeSubtotal();
-    };
-
-    CartItem.prototype.decreaseQuantity = function decreaseQuantity() {
-      if (this.quantity > 1) {
-        this.quantity--;
-        this.ea.publish(new _messages.CartItemQuantityUpdated(this.id, this.quantity));
-        this.recomputeSubtotal();
-      }
-    };
-
-    CartItem.prototype.increaseQuantity = function increaseQuantity() {
-      this.quantity++;
-      this.ea.publish(new _messages.CartItemQuantityUpdated(this.id, this.quantity));
-      this.recomputeSubtotal();
-    };
-
-    return CartItem;
-  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'id', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'name', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'quantity', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'price', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: null
-  })), _class);
-});
-define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Cart = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _desc, _value, _class, _descriptor, _class2, _temp;
-
-  var Cart = exports.Cart = (_class = (_temp = _class2 = function () {
-    function Cart(ea) {
-      var _this = this;
-
-      _classCallCheck(this, Cart);
-
-      _initDefineProp(this, 'items', _descriptor, this);
-
-      this.ea = ea;
-      this.taxes = 0;
-      this.shipping = 0;
-      this.total = 0;
-      this.subtotal = 0;
-
-      ea.subscribe(_messages.ProductRemovedFromCart, function (msg) {
-        _this.items.delete(msg.id);
-        _this.ea.publish(new _messages.ShoppingCartQuantityUpdated(_this.items.size));
-        _this.recomputeTotals();
-      });
-
-      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
-        _this.recomputeTotals();
-      });
-
-      ea.subscribe(_messages.CartItemQuantityUpdated, function (msg) {
-        var data = _this.items.get(msg.id);
-        data.quantity = msg.quantity;
-        _this.items.set(msg.id, data);
-        _this.recomputeTotals();
-      });
-    }
-
-    Cart.prototype.attached = function attached() {
-      this.recomputeTotals();
-    };
-
-    Cart.prototype.addToCart = function addToCart(id, data) {
-      if (this.items.has(id)) {
-        this.ea.publish(new _messages.ProductAlreadyInCart(id, data));
-      } else {
-        this.items.set(id, data);
-        this.ea.publish(new _messages.ShoppingCartQuantityUpdated(this.items.size));
-        this.ea.publish(new _messages.ProductAddedToCart(id, data));
-      }
-    };
-
-    Cart.prototype.recomputeTotals = function recomputeTotals() {
-      var subtotal = 0;
-      for (var _iterator = this.items, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        var _ref;
-
-        if (_isArray) {
-          if (_i >= _iterator.length) break;
-          _ref = _iterator[_i++];
-        } else {
-          _i = _iterator.next();
-          if (_i.done) break;
-          _ref = _i.value;
-        }
-
-        var _ref2 = _ref,
-            id = _ref2[0],
-            data = _ref2[1];
-
-        subtotal = subtotal + data.price * data.quantity;
-      }
-      this.subtotal = subtotal;
-      this.taxes = this.subtotal * 0.13;
-      this.total = this.subtotal + this.taxes;
-    };
-
-    return Cart;
-  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'items', [_aureliaFramework.observable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return new Map();
-    }
-  })), _class);
-});
-define('cart/checkout',['exports', './cart'], function (exports, _cart) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Checkout = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _class, _temp;
-
-  var Checkout = exports.Checkout = (_temp = _class = function () {
-    function Checkout(cart) {
-      _classCallCheck(this, Checkout);
-
-      this.cart = cart;
-    }
-
-    Checkout.prototype.getCartSize = function getCartSize() {
-      return this.cart.items.size;
-    };
-
-    return Checkout;
-  }(), _class.inject = [_cart.Cart], _temp);
-});
 define('components/alert-banner',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
   'use strict';
 
@@ -661,6 +370,297 @@ define('home/home',['exports'], function (exports) {
     this.message = 'Products';
   };
 });
+define('cart/cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.CartItem = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _class2, _temp;
+
+  var CartItem = exports.CartItem = (_class = (_temp = _class2 = function () {
+    function CartItem(ea) {
+      var _this = this;
+
+      _classCallCheck(this, CartItem);
+
+      _initDefineProp(this, 'id', _descriptor, this);
+
+      _initDefineProp(this, 'name', _descriptor2, this);
+
+      _initDefineProp(this, 'quantity', _descriptor3, this);
+
+      _initDefineProp(this, 'price', _descriptor4, this);
+
+      this.ea = ea;
+      this.subtotal = 0;
+
+      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
+        _this.recomputeSubtotal();
+      });
+    }
+
+    CartItem.prototype.attached = function attached() {
+      this.recomputeSubtotal();
+    };
+
+    CartItem.prototype.recomputeSubtotal = function recomputeSubtotal() {
+      this.subtotal = this.quantity * this.price;
+    };
+
+    CartItem.prototype.removeFromCart = function removeFromCart() {
+      this.ea.publish(new _messages.ProductRemovedFromCart(this.id));
+      this.recomputeSubtotal();
+    };
+
+    CartItem.prototype.decreaseQuantity = function decreaseQuantity() {
+      if (this.quantity > 1) {
+        this.quantity--;
+        this.ea.publish(new _messages.CartItemQuantityUpdated(this.id, this.quantity));
+        this.recomputeSubtotal();
+      }
+    };
+
+    CartItem.prototype.increaseQuantity = function increaseQuantity() {
+      this.quantity++;
+      this.ea.publish(new _messages.CartItemQuantityUpdated(this.id, this.quantity));
+      this.recomputeSubtotal();
+    };
+
+    return CartItem;
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'id', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  }), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'name', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  }), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'quantity', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  }), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'price', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class);
+});
+define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Cart = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor, _class2, _temp;
+
+  var Cart = exports.Cart = (_class = (_temp = _class2 = function () {
+    function Cart(ea) {
+      var _this = this;
+
+      _classCallCheck(this, Cart);
+
+      _initDefineProp(this, 'items', _descriptor, this);
+
+      this.ea = ea;
+      this.taxes = 0;
+      this.shipping = 0;
+      this.total = 0;
+      this.subtotal = 0;
+
+      ea.subscribe(_messages.ProductRemovedFromCart, function (msg) {
+        _this.items.delete(msg.id);
+        _this.ea.publish(new _messages.ShoppingCartQuantityUpdated(_this.items.size));
+        _this.recomputeTotals();
+      });
+
+      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
+        _this.recomputeTotals();
+      });
+
+      ea.subscribe(_messages.CartItemQuantityUpdated, function (msg) {
+        var data = _this.items.get(msg.id);
+        data.quantity = msg.quantity;
+        _this.items.set(msg.id, data);
+        _this.recomputeTotals();
+      });
+    }
+
+    Cart.prototype.attached = function attached() {
+      this.recomputeTotals();
+    };
+
+    Cart.prototype.addToCart = function addToCart(id, data) {
+      if (this.items.has(id)) {
+        this.ea.publish(new _messages.ProductAlreadyInCart(id, data));
+      } else {
+        this.items.set(id, data);
+        this.ea.publish(new _messages.ShoppingCartQuantityUpdated(this.items.size));
+        this.ea.publish(new _messages.ProductAddedToCart(id, data));
+      }
+    };
+
+    Cart.prototype.recomputeTotals = function recomputeTotals() {
+      var subtotal = 0;
+      for (var _iterator = this.items, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        var _ref;
+
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref = _iterator[_i++];
+        } else {
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref = _i.value;
+        }
+
+        var _ref2 = _ref,
+            id = _ref2[0],
+            data = _ref2[1];
+
+        subtotal = subtotal + data.price * data.quantity;
+      }
+      this.subtotal = subtotal;
+      this.taxes = this.subtotal * 0.13;
+      this.total = this.subtotal + this.taxes;
+    };
+
+    return Cart;
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'items', [_aureliaFramework.observable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return new Map();
+    }
+  })), _class);
+});
+define('cart/checkout',['exports', './cart'], function (exports, _cart) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Checkout = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var Checkout = exports.Checkout = (_temp = _class = function () {
+    function Checkout(cart) {
+      _classCallCheck(this, Checkout);
+
+      this.cart = cart;
+    }
+
+    Checkout.prototype.getCartSize = function getCartSize() {
+      return this.cart.items.size;
+    };
+
+    return Checkout;
+  }(), _class.inject = [_cart.Cart], _temp);
+});
 define('resources/currency-format',['exports', 'numeral'], function (exports, _numeral) {
   'use strict';
 
@@ -845,8 +845,8 @@ define('resources/web-api',['exports'], function (exports) {
 });
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./components/alert-banner\"></require><require from=\"./components/navigation\"></require><require from=\"./components/footer.html\"></require><navigation router.bind=\"router\"></navigation><alert-banner></alert-banner><router-view></router-view><footer></footer></template>"; });
 define('text!cart/cart-item.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-margin-medium-bottom\"><h3 class=\"uk-margin-small-bottom\">${name}</h3><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Quantity</div><div><span>${quantity}</span></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (each)</div><div>${price | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (subtotal)</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-margin-small-top\" uk-grid><div class=\"uk-width-1-2\"><button class=\"uk-button uk-button-small uk-button-default\" click.delegate=\"decreaseQuantity()\">-</button> <button class=\"uk-button uk-button-small uk-button-default\" click.delegate=\"increaseQuantity()\">+</button></div><div class=\"uk-width-1-2 uk-text-right\"><button class=\"uk-button uk-button-small uk-button-danger\" click.delegate=\"removeFromCart()\">x</button></div></div></div></template>"; });
-define('text!cart/cart.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><require from=\"./cart-item\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h1 class=\"uk-heading-line uk-text-center\"><span>Cart</span></h1><div class=\"uk-margin-medium\"><cart-item id.bind=\"id\" name.bind=\"data.name\" quantity.bind=\"data.quantity\" price.bind=\"data.price\" repeat.for=\"[id, data] of items\"></cart-item></div></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>${shipping | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${total | currencyFormat}</div></div></div><a route-href=\"route: checkout\" class=\"uk-button uk-width-1-1 uk-button-primary\">Checkout</a></div></div></div></div></div></template>"; });
-define('text!cart/checkout.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h1 class=\"uk-heading-line uk-text-center\"><span>Checkout</span></h1><div class=\"uk-margin-medium\"><form uk-grid><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"first-name\">First Name</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"first-name\" type=\"text\" placeholder=\"\"></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"last-name\">Last Name</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"last-name\" type=\"text\" placeholder=\"\"></div></div><div class=\"uk-width-2-3\"><label class=\"uk-form-label\" for=\"email\">Email Address</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"email\" type=\"text\" placeholder=\"\"></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">Country</label><div class=\"uk-form-controls\"><select class=\"uk-select\" id=\"country\"><option>Canada</option></select></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">Province</label><div class=\"uk-form-controls\"><select class=\"uk-select\" id=\"country\"><option>Alberta</option><option>British Columbia</option><option>Manitoba</option><option>New Brunswick</option><option>Newfoundland and Labrador</option><option>Northwest Territories</option><option>Nova Scotia</option><option>Nunavut</option><option>Ontario</option><option>Prince Edward Island</option><option>Quebec</option><option>Saskatchewan</option><option>Yukon</option></select></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">City</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"city\" type=\"text\" placeholder=\"\"></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">Postal Code</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"city\" type=\"text\" placeholder=\"\"></div></div></form></div><a class=\"uk-button uk-button-primary uk-width-1-1\">Pay & Checkout</a></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${cart.subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${cart.taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>${cart.shipping | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${cart.total | currencyFormat}</div></div></div></div></div></div></div></div></template>"; });
+define('text!cart/cart.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><require from=\"./cart-item\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h1 class=\"uk-heading-line uk-text-center\"><span>Cart</span></h1><div class=\"uk-margin-medium\"><cart-item id.bind=\"id\" name.bind=\"data.name\" quantity.bind=\"data.quantity\" price.bind=\"data.price\" repeat.for=\"[id, data] of items\"></cart-item></div></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>¯\\_(ツ)_/¯</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${total | currencyFormat}</div></div></div><a route-href=\"route: checkout\" class=\"uk-button uk-width-1-1 uk-button-primary\">Checkout</a></div></div></div></div></div></template>"; });
+define('text!cart/checkout.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h2 class=\"uk-heading-line uk-text-center\"><span>Shipping Address</span></h2><div class=\"uk-margin-medium\"><form uk-grid><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"first-name\">First Name</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"first-name\" type=\"text\" placeholder=\"\"></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"last-name\">Last Name</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"last-name\" type=\"text\" placeholder=\"\"></div></div><div class=\"uk-width-2-3\"><label class=\"uk-form-label\" for=\"email\">Email Address</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"email\" type=\"text\" placeholder=\"\"></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">Country</label><div class=\"uk-form-controls\"><select class=\"uk-select\" id=\"country\"><option>Canada</option></select></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">Province</label><div class=\"uk-form-controls\"><select class=\"uk-select\" id=\"country\"><option>Alberta</option><option>British Columbia</option><option>Manitoba</option><option>New Brunswick</option><option>Newfoundland and Labrador</option><option>Northwest Territories</option><option>Nova Scotia</option><option>Nunavut</option><option>Ontario</option><option>Prince Edward Island</option><option>Quebec</option><option>Saskatchewan</option><option>Yukon</option></select></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">City</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"city\" type=\"text\" placeholder=\"\"></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">Postal Code</label><div class=\"uk-form-controls\"><input class=\"uk-input\" id=\"city\" type=\"text\" placeholder=\"\"></div></div></form></div><a class=\"uk-button uk-button-primary uk-width-1-1 uk-margin-medium-top\">Pay & Checkout</a><p class=\"uk-text-small uk-text-center\">In demo land, everything is free! No need to enter your credit card details.</p></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${cart.subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${cart.taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>¯\\_(ツ)_/¯</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${cart.total | currencyFormat}</div></div></div></div></div></div></div></div></template>"; });
 define('text!components/alert-banner.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"enabled\" class=\"uk-card uk-card-body uk-position-top-right uk-position-fixed\" style=\"z-index:980;width:500px;top:60px\"><div class=\"${alertType} uk-box-shadow-medium\" uk-alert><a class=\"uk-alert-close\" uk-close></a><p>${message}</p></div></div></template>"; });
 define('text!components/footer.html', ['module'], function(module) { module.exports = "<template><div class=\"uk-section uk-padding-large uk-section-secondary\"><div class=\"uk-container uk-text-center\">A demo by your friends at RedElastic.</div></div></template>"; });
 define('text!components/navigation.html', ['module'], function(module) { module.exports = "<template><nav class=\"uk-navbar-container\" uk-navbar><div class=\"uk-navbar-center\"><div class=\"uk-navbar-left\"><ul class=\"uk-navbar-nav\"><li><a href=\"#\">Account</a></li></ul></div><a route-href=\"route: home\" class=\"uk-navbar-item uk-logo\">ReCommerce</a><div class=\"uk-navbar-right\"><ul class=\"uk-navbar-nav\"><li><a route-href=\"route: cart\" uk-icon=\"icon: cart\"><span class=\"uk-badge\">${cartCount}</span></a></li></ul></div></div></nav></template>"; });
