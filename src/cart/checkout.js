@@ -1,9 +1,10 @@
 import {Cart} from './cart';
 import {ValidationRules, ValidationController} from 'aurelia-validation';
 import {Router} from 'aurelia-router';
+import {WebAPI} from '../resources/web-api';
 
 export class Checkout {  
-  static inject = [Cart, ValidationController, Router];  
+  static inject = [Cart, ValidationController, Router, WebAPI];  
 
   firstName;
   lastName;
@@ -31,10 +32,11 @@ export class Checkout {
     'Yukon'
   ];
 
-  constructor(cart, validator, router){
+  constructor(cart, validator, router, api){
     this.cart = cart;
     this.validator = validator;
     this.router = router;
+    this.api = api;
 
     ValidationRules
       .ensure((c: Checkout) => c.firstName).required()
@@ -69,11 +71,12 @@ export class Checkout {
           items: this.cart.items
         };
 
-        // TODO event "OrderPlaced"
-        // TODO set timer (1 minute) ... TODO publish OrderTimedOut
-        // TODO subscribe on OrderConfirmed
-        // TODO subscribe on OrderFailed
-        this.router.navigate("cart/checkout/confirm");
+        this.api.placeOrder(order).then(results => {
+          if (results.success == true) {
+            this.router.navigateToRoute("confirm", { id: results.orderId });
+            // TODO clear shopping cart  
+          }
+        });                
       }
     });
   }
