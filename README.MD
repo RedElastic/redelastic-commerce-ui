@@ -1,6 +1,6 @@
 # ReCommerce UI
 
-This is a single-page app developed in [Aurelia](aurelia.io) that simulates a basic eCommerce user flow:
+This is a single-page app developed in [Aurelia](http://aurelia.io) that simulates a basic eCommerce user flow:
 
 1. Browse items
 2. Add to cart
