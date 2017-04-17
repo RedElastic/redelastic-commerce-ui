@@ -106,6 +106,7 @@ export class WebAPI {
     this.isRequesting = true;
     return new Promise(resolve => {
       setTimeout(() => {
+        console.debug(data);
         let results = {
           orderId: "KJHDNSF7SDAF87",
           success: true

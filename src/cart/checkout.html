@@ -7,7 +7,7 @@
       <div uk-grid>
         <div class="uk-width-2-3">
           <div class="uk-card uk-card-body uk-card-default">
-            <h2 class="uk-heading-line uk-text-center"><span>Shipping Address</span></h2>
+            <h2 class="uk-heading-line uk-text-center"><span>Shipping Information</span></h2>            
             <div class="uk-margin-medium">
               <form submit.delegate="submit()" uk-grid>
                 <div class="uk-width-1-2" validation-errors.bind="firstNameErrors">
@@ -32,6 +32,18 @@
                   <label class="uk-form-label" for="phone">Phone</label>
                   <div class="uk-form-controls">
                     <input class.bind="phoneErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="phone" type="text" value.bind="phone & validate">
+                  </div>
+                </div>
+                <div class="uk-width-3-4" validation-errors.bind="streetErrors">
+                  <label class="uk-form-label" for="email">Street and Number</label>
+                  <div class="uk-form-controls">
+                    <input class.bind="streetErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="street" type="text" value.bind="street & validate">
+                  </div>
+                </div>
+                <div class="uk-width-1-4" validation-errors.bind="apartmentNumErrors">
+                  <label class="uk-form-label" for="email">Apartment</label>
+                  <div class="uk-form-controls">
+                    <input class.bind="apartmentErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="apartment" type="text" value.bind="apartment">
                   </div>
                 </div>
                 <div class="uk-width-1-2">

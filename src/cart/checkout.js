@@ -10,6 +10,8 @@ export class Checkout {
   lastName;
   email;
   phone;
+  street;
+  apartment;
   country;
   province;
   city;
@@ -43,6 +45,7 @@ export class Checkout {
       .ensure((c: Checkout) => c.lastName).required()
       .ensure((c: Checkout) => c.email).required().email()
       .ensure((c: Checkout) => c.phone).required()
+      .ensure((c: Checkout) => c.street).required()
       .ensure((c: Checkout) => c.city).required()      
       .ensure((c: Checkout) => c.postalCode).required()
       .on(this);
@@ -60,6 +63,8 @@ export class Checkout {
           lastName: this.lastName,
           email: this.email,
           phone: this.phone,
+          street: this.street,
+          apartment: this.apartment,
           country: this.country,
           province: this.province,
           city: this.city,
