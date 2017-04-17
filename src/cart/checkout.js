@@ -1,8 +1,9 @@
 import {Cart} from './cart';
 import {ValidationRules, ValidationController} from 'aurelia-validation';
+import {Router} from 'aurelia-router';
 
 export class Checkout {  
-  static inject = [Cart, ValidationController];  
+  static inject = [Cart, ValidationController, Router];  
 
   firstName;
   lastName;
@@ -30,9 +31,10 @@ export class Checkout {
     'Yukon'
   ];
 
-  constructor(cart, validator){
+  constructor(cart, validator, router){
     this.cart = cart;
     this.validator = validator;
+    this.router = router;
 
     ValidationRules
       .ensure((c: Checkout) => c.firstName).required()
@@ -50,8 +52,7 @@ export class Checkout {
 
   submit() {
     this.validator.validate().then(result => {
-      if (result.valid) {
-        
+      if (result.valid) {        
         let shippingInfo = {
           firstName: this.firstName,
           lastName: this.lastName,
@@ -68,7 +69,11 @@ export class Checkout {
           items: this.cart.items
         };
 
-        console.log(order);
+        // TODO event "OrderPlaced"
+        // TODO set timer (1 minute) ... TODO publish OrderTimedOut
+        // TODO subscribe on OrderConfirmed
+        // TODO subscribe on OrderFailed
+        this.router.navigate("cart/checkout/confirm");
       }
     });
   }

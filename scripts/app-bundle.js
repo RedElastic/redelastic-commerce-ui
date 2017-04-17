@@ -22,7 +22,7 @@ define('app',['exports', 'aurelia-router'], function (exports, _aureliaRouter) {
     App.prototype.configureRouter = function configureRouter(config, router) {
       this.router = router;
       config.title = 'ReCommerce';
-      config.map([{ route: ['', 'home'], name: 'home', moduleId: 'home/home' }, { route: 'cart', name: 'cart', moduleId: 'cart/cart' }, { route: 'cart/checkout', name: 'checkout', moduleId: 'cart/checkout' }]);
+      config.map([{ route: ['', 'home'], name: 'home', moduleId: 'home/home' }, { route: 'cart', name: 'cart', moduleId: 'cart/cart' }, { route: 'cart/checkout', name: 'checkout', moduleId: 'cart/checkout' }, { route: 'cart/checkout/confirm', name: 'confirm', moduleId: 'cart/confirm' }]);
     };
 
     return App;
@@ -332,7 +332,7 @@ define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
     }
   })), _class);
 });
-define('cart/checkout',['exports', './cart', 'aurelia-validation'], function (exports, _cart, _aureliaValidation) {
+define('cart/checkout',['exports', './cart', 'aurelia-validation', 'aurelia-router'], function (exports, _cart, _aureliaValidation, _aureliaRouter) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -349,7 +349,7 @@ define('cart/checkout',['exports', './cart', 'aurelia-validation'], function (ex
   var _class, _temp;
 
   var Checkout = exports.Checkout = (_temp = _class = function () {
-    function Checkout(cart, validator) {
+    function Checkout(cart, validator, router) {
       _classCallCheck(this, Checkout);
 
       this.countries = ['Canada'];
@@ -357,6 +357,7 @@ define('cart/checkout',['exports', './cart', 'aurelia-validation'], function (ex
 
       this.cart = cart;
       this.validator = validator;
+      this.router = router;
 
       _aureliaValidation.ValidationRules.ensure(function (c) {
         return c.firstName;
@@ -382,7 +383,6 @@ define('cart/checkout',['exports', './cart', 'aurelia-validation'], function (ex
 
       this.validator.validate().then(function (result) {
         if (result.valid) {
-
           var shippingInfo = {
             firstName: _this.firstName,
             lastName: _this.lastName,
@@ -399,13 +399,13 @@ define('cart/checkout',['exports', './cart', 'aurelia-validation'], function (ex
             items: _this.cart.items
           };
 
-          console.log(order);
+          _this.router.navigate("cart/checkout/confirm");
         }
       });
     };
 
     return Checkout;
-  }(), _class.inject = [_cart.Cart, _aureliaValidation.ValidationController], _temp);
+  }(), _class.inject = [_cart.Cart, _aureliaValidation.ValidationController, _aureliaRouter.Router], _temp);
 });
 define('components/alert-banner',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
   'use strict';
@@ -888,6 +888,23 @@ define('resources/web-api',['exports'], function (exports) {
     return WebAPI;
   }();
 });
+define('cart/confirm',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Confirm = exports.Confirm = function Confirm() {
+    _classCallCheck(this, Confirm);
+  };
+});
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./components/alert-banner\"></require><require from=\"./components/navigation\"></require><require from=\"./components/footer.html\"></require><navigation router.bind=\"router\"></navigation><alert-banner></alert-banner><router-view></router-view><footer></footer></template>"; });
 define('text!cart/cart-item.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-margin-medium-bottom\"><div uk-grid><div class=\"uk-width-1-2\"><h3 class=\"uk-margin-small-bottom\">${name}</h3></div><div class=\"uk-width-1-2 uk-text-right\"><button class=\"uk-button uk-button-small uk-button-default\" click.delegate=\"decreaseQuantity()\">-</button> <button class=\"uk-button uk-button-small uk-button-default\" click.delegate=\"increaseQuantity()\">+</button></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Quantity</div><div><span>${quantity}</span></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (each)</div><div>${price | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (subtotal)</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-margin-small-top\" uk-grid><div class=\"uk-width-1-2\"></div><div class=\"uk-width-1-2 uk-text-right\"><button class=\"uk-button uk-button-small uk-button-danger\" click.delegate=\"removeFromCart()\">x</button></div></div></div></template>"; });
 define('text!cart/cart.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><require from=\"./cart-item\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><div class=\"uk-margin-medium\"><cart-item id.bind=\"id\" name.bind=\"data.name\" quantity.bind=\"data.quantity\" price.bind=\"data.price\" repeat.for=\"[id, data] of items\"></cart-item><div if.bind=\"items.size < 1\">Your cart is empty.</div></div></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>¯\\_(ツ)_/¯</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${total | currencyFormat}</div></div></div><a route-href=\"route: checkout\" class=\"uk-button uk-width-1-1 uk-button-primary\">Checkout</a></div></div></div></div></div></template>"; });
@@ -898,4 +915,5 @@ define('text!components/navigation.html', ['module'], function(module) { module.
 define('text!components/product-card.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-card uk-card-body uk-card-default product-card\"><div class=\"uk-card-media-top\"><img width=\"600\" height=\"400\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNi4wLjQsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkViZW5lXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iNjAwcHgiIGhlaWdodD0iNDAwcHgiIHZpZXdCb3g9IjAgMCA2MDAgNDAwIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA2MDAgNDAwIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxyZWN0IGZpbGw9IiNGNUY1RjUiIHdpZHRoPSI2MDAiIGhlaWdodD0iNDAwIi8+DQo8ZyBvcGFjaXR5PSIwLjciPg0KCTxwYXRoIGZpbGw9IiNEOEQ4RDgiIGQ9Ik0yMjguMTg0LDE0My41djExM2gxNDMuNjMydi0xMTNIMjI4LjE4NHogTTM2MC4yNDQsMjQ0LjI0N0gyNDAuNDM3di04OC40OTRoMTE5LjgwOEwzNjAuMjQ0LDI0NC4yNDcNCgkJTDM2MC4yNDQsMjQ0LjI0N3oiLz4NCgk8cG9seWdvbiBmaWxsPSIjRDhEOEQ4IiBwb2ludHM9IjI0Ni44ODEsMjM0LjcxNyAyNzEuNTcyLDIwOC43NjQgMjgwLjgyNCwyMTIuNzY4IDMxMC4wMTYsMTgxLjY4OCAzMjEuNTA1LDE5NS40MzQgDQoJCTMyNi42ODksMTkyLjMwMyAzNTQuNzQ2LDIzNC43MTcgCSIvPg0KCTxjaXJjbGUgZmlsbD0iI0Q4RDhEOCIgY3g9IjI3NS40MDUiIGN5PSIxNzguMjU3IiByPSIxMC43ODciLz4NCjwvZz4NCjwvc3ZnPg0K\" alt=\"\"></div><h3 class=\"uk-card-title uk-margin-small-top uk-margin-small-bottom\">${name}</h3><p class=\"uk-text-small\">${price | currencyFormat}</p><div class=\"uk-margin-small-top\">${description}</div></div><button click.delegate=\"addToCart()\" class=\"uk-button uk-button-primary uk-width-1-1\">Add to Cart</button><div class=\"uk-child-width-1-3 uk-grid-collapse uk-margin-top\" uk-grid><div class=\"uk-text-left uk-margin-remove\"><button click.delegate=\"decreaseQuantity()\" class=\"uk-button uk-button-small uk-button-default\">-</button></div><div class=\"uk-text-left uk-text-small uk-margin-remove\">Quantity: <span class=\"uk-text-bold\">${quantity}</span></div><div class=\"uk-text-right uk-margin-remove\"><button click.delegate=\"increaseQuantity()\" class=\"uk-button uk-button-small uk-button-default\">+</button></div></div></template>"; });
 define('text!components/product-list.html', ['module'], function(module) { module.exports = "<template><require from=\"./product-card\"></require><div class=\"product-list uk-grid-large\" uk-grid uk-height-match=\"target: > div > .product-card\"><div repeat.for=\"product of products\" class=\"uk-width-1-2@s uk-width-1-3@m\"><product-card id=\"${product.id}\" name=\"${product.name}\" description=\"${product.description}\" price=\"${product.price}\"></product-card></div></div></template>"; });
 define('text!home/home.html', ['module'], function(module) { module.exports = "<template><require from=\"../components/product-list\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><product-list></product-list></div></div></template>"; });
+define('text!cart/confirm.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div class=\"uk-alert-success uk-margin-medium-bottom\" uk-alert><p>Your order has been confirmed! Your order ID is <strong>8FGHN7WNH78O</strong>.</p></div><div class=\"uk-alert-primary uk-margin-medium-bottom\" uk-alert>A confirmation email has been sent to <strong>kevin.webber@gmail.com</strong>. Expected shipping date is <strong>a state of mind</strong>.</div><div uk-grid><div class=\"uk-width-1-3\" style=\"font-size:.8em\"><div class=\"uk-card uk-card-body uk-card-default\"><h3>Shipping Details</h3><table class=\"uk-table uk-table-small\"><tbody><tr><td>First Name</td><td>Kevin</td></tr><tr><td>Last Name</td><td>Webber</td></tr><tr><td>Street and Number</td><td>70 Distillery Lane</td></tr><tr><td>Apartment Number</td><td>2109</td></tr><tr><td>City</td><td>Toronto</td></tr><tr><td>Province</td><td>Ontario</td></tr><tr><td>Postal Code</td><td>M5A 0E3</td></tr></tbody></table></div></div><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h3>Order Details</h3><table class=\"uk-table uk-table-striped\"><thead><tr><th>Item</th><th>Quantity</th><th>Price (each)</th><th>Subtotal</th></tr></thead><tfoot><tr><th></th><th></th><th>Subtotal</th><th style=\"color:#000;font-size:1.1em\">$22.99</th></tr><tr><th></th><th></th><th>Taxes (13%)</th><th style=\"color:#000;font-size:1.1em\">$2.99</th></tr><tr><th></th><th></th><th>Total</th><th style=\"font-weight:700;color:#000;font-size:1.1em\">$25.98</th></tr></tfoot><tbody><tr><td>Some Awful Thing</td><td>1</td><td>$12.99</td><td>$12.99</td></tr><tr><td>Some Worse Thing</td><td>2</td><td>$10.00</td><td>$20.00</td></tr></tbody></table></div></div></div></div></div></template>"; });
 //# sourceMappingURL=app-bundle.js.map
