@@ -13,6 +13,23 @@ export class Checkout {
   city;
   postalCode;
 
+  countries = ['Canada'];
+  provinces = [
+    'Alberta',
+    'British Columbia',
+    'Manitoba',
+    'New Brunswick',
+    'Newfoundland and Labrador',
+    'Northwest Territories',
+    'Nova Scotia',
+    'Nunavut',
+    'Ontario',
+    'Prince Edward Island',
+    'Quebec',
+    'Saskatchewan',
+    'Yukon'
+  ];
+
   constructor(cart, validator){
     this.cart = cart;
     this.validator = validator;
@@ -34,9 +51,24 @@ export class Checkout {
   submit() {
     this.validator.validate().then(result => {
       if (result.valid) {
-        // do the thing
-      } else {
-        // do the other thing
+        
+        let shippingInfo = {
+          firstName: this.firstName,
+          lastName: this.lastName,
+          email: this.email,
+          phone: this.phone,
+          country: this.country,
+          province: this.province,
+          city: this.city,
+          postalCode: this.postalCode
+        };        
+
+        let order = { 
+          shippingInfo: shippingInfo, 
+          items: this.cart.items
+        };
+
+        console.log(order);
       }
     });
   }

@@ -38,7 +38,7 @@
                   <label class="uk-form-label" for="country">Country</label>
                   <div class="uk-form-controls">
                     <select class="uk-select" id="country" value.bind="country">
-                        <option>Canada</option>
+                        <option repeat.for="country of countries" value.bind="country">${country}</option>
                     </select>
                   </div>
                 </div>
@@ -46,20 +46,8 @@
                   <label class="uk-form-label" for="province">Province</label>
                   <div class="uk-form-controls">
                     <select class="uk-select" id="province" value.bind="province">
-                            <option>Alberta</option>
-                            <option>British Columbia</option>
-                            <option>Manitoba</option>
-                            <option>New Brunswick</option>
-                            <option>Newfoundland and Labrador</option>
-                            <option>Northwest Territories</option>
-                            <option>Nova Scotia</option>
-                            <option>Nunavut</option>
-                            <option>Ontario</option>
-                            <option>Prince Edward Island</option>
-                            <option>Quebec</option>
-                            <option>Saskatchewan</option>
-                            <option>Yukon</option>
-                        </select>
+                      <option repeat.for="province of provinces" value.bind="province">${province}</option>
+                    </select>
                   </div>
                 </div>
                 <div class="uk-width-1-2" validation-errors.bind="cityErrors">
