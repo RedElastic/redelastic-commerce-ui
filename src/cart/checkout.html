@@ -5,41 +5,47 @@
     <div class="uk-container">
 
       <div uk-grid>
-        <div class="uk-width-2-3">    
-          <div class="uk-card uk-card-body uk-card-default">            
+        <div class="uk-width-2-3">
+          <div class="uk-card uk-card-body uk-card-default">
             <h2 class="uk-heading-line uk-text-center"><span>Shipping Address</span></h2>
-            <div class="uk-margin-medium">                  
-              <form uk-grid>
-                <div class="uk-width-1-2">
-                    <label class="uk-form-label" for="first-name">First Name</label>
-                    <div class="uk-form-controls">
-                        <input class="uk-input" id="first-name" type="text" placeholder="">
-                    </div>
+            <div class="uk-margin-medium">
+              <form submit.delegate="submit()" uk-grid>
+                <div class="uk-width-1-2" validation-errors.bind="firstNameErrors">
+                  <label class="uk-form-label" for="first-name">First Name</label>
+                  <div class="uk-form-controls">
+                    <input class.bind="firstNameErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="first-name" type="text" value.bind="firstName & validate">
+                  </div>
+                </div>
+                <div class="uk-width-1-2" validation-errors.bind="lastNameErrors">
+                  <label class="uk-form-label" for="last-name">Last Name</label>
+                  <div class="uk-form-controls">
+                    <input class.bind="lastNameErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="last-name" type="text" value.bind="lastName & validate">
+                  </div>
+                </div>
+                <div class="uk-width-2-3" validation-errors.bind="emailErrors">
+                  <label class="uk-form-label" for="email">Email Address</label>
+                  <div class="uk-form-controls">
+                    <input class.bind="emailErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="email" type="text" value.bind="email & validate">
+                  </div>
+                </div>
+                <div class="uk-width-1-3" validation-errors.bind="phoneErrors">
+                  <label class="uk-form-label" for="phone">Phone</label>
+                  <div class="uk-form-controls">
+                    <input class.bind="phoneErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="phone" type="text" value.bind="phone & validate">
+                  </div>
                 </div>
                 <div class="uk-width-1-2">
-                    <label class="uk-form-label" for="last-name">Last Name</label>
-                    <div class="uk-form-controls">
-                        <input class="uk-input" id="last-name" type="text" placeholder="">
-                    </div>
-                </div>
-                <div class="uk-width-2-3">
-                    <label class="uk-form-label" for="email">Email Address</label>
-                    <div class="uk-form-controls">
-                        <input class="uk-input" id="email" type="text" placeholder="">
-                    </div>
+                  <label class="uk-form-label" for="country">Country</label>
+                  <div class="uk-form-controls">
+                    <select class="uk-select" id="country" value.bind="country">
+                        <option>Canada</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="uk-width-1-2">
-                    <label class="uk-form-label" for="country">Country</label>
-                    <div class="uk-form-controls">
-                        <select class="uk-select" id="country">
-                            <option>Canada</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="uk-width-1-2">
-                    <label class="uk-form-label" for="country">Province</label>
-                    <div class="uk-form-controls">
-                        <select class="uk-select" id="country">
+                  <label class="uk-form-label" for="province">Province</label>
+                  <div class="uk-form-controls">
+                    <select class="uk-select" id="province" value.bind="province">
                             <option>Alberta</option>
                             <option>British Columbia</option>
                             <option>Manitoba</option>
@@ -54,51 +60,58 @@
                             <option>Saskatchewan</option>
                             <option>Yukon</option>
                         </select>
-                    </div>
+                  </div>
                 </div>
-                <div class="uk-width-1-2">
-                    <label class="uk-form-label" for="country">City</label>
-                    <div class="uk-form-controls">
-                        <input class="uk-input" id="city" type="text" placeholder="">
-                    </div>
+                <div class="uk-width-1-2" validation-errors.bind="cityErrors">
+                  <label class="uk-form-label" for="city">City</label>
+                  <div class="uk-form-controls">
+                    <input class.bind="cityErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="city" type="text" value.bind="city & validate">
+                  </div>
                 </div>
-                <div class="uk-width-1-2">
-                    <label class="uk-form-label" for="country">Postal Code</label>
-                    <div class="uk-form-controls">
-                        <input class="uk-input" id="city" type="text" placeholder="">
-                    </div>
+                <div class="uk-width-1-2" validation-errors.bind="postalCodeErrors">
+                  <label class="uk-form-label" for="postalCode">Postal Code</label>
+                  <div class="uk-form-controls">
+                    <input class.bind="postalCodeErrors.length ? 'uk-input uk-form-danger' : 'uk-input'" id="postalCode" type="text" value.bind="postalCode & validate">
+                  </div>
                 </div>
-              </form>              
-            </div>            
-            <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-medium-top">Pay & Checkout</a>
-            <p class="uk-text-small uk-text-center">In demo land, everything is free! No need to enter your credit card details.</p>
-          </div>
-        </div>
-        <div class="uk-width-1-3">
-          <div class="uk-card uk-card-body uk-card-primary">
-            <h3>Your Order</h3>
-            <div id="totals" class="uk-margin-medium-bottom">
-              <div class="uk-grid-small uk-margin-remove-top" uk-grid>
-                <div class="uk-width-expand" uk-leader>Subtotal</div>
-                <div>${cart.subtotal | currencyFormat}</div>
+                <div class="uk-width-1-1">
+                <div repeat.for="error of validator.errors" class="uk-alert-danger" uk-alert>
+                  <p>${error.message}</p>
+                </div>
+                </div>
+                <div class="uk-width-1-1">
+                  <button type="submit" class="uk-button uk-button-primary uk-width-1-1 uk-margin-medium-top">Pay & Checkout</button>
+                  <p class="uk-text-small uk-text-center">In demo land, everything is free! No need to enter your credit card details.</p>
+                  <div>
+              </form>
               </div>
-              <div class="uk-grid-small uk-margin-remove-top" uk-grid>
-                <div class="uk-width-expand" uk-leader>Taxes (13%)</div>
-                <div>${cart.taxes | currencyFormat}</div>
-              </div>
-              <div class="uk-grid-small uk-margin-remove-top" uk-grid>
-                <div class="uk-width-expand" uk-leader>Shipping</div>
-                <div>¯\_(ツ)_/¯</div>
-              </div>
-              <div class="uk-grid-small uk-margin-remove-top" uk-grid>
-                <div class="uk-width-expand" uk-leader>Total</div>
-                <div>${cart.total | currencyFormat}</div>
               </div>
             </div>
-          </div>      
-        </div>  
-      </div>
+            <div class="uk-width-1-3">
+              <div class="uk-card uk-card-body uk-card-primary">
+                <h3>Your Order</h3>
+                <div id="totals" class="uk-margin-medium-bottom">
+                  <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+                    <div class="uk-width-expand" uk-leader>Subtotal</div>
+                    <div>${cart.subtotal | currencyFormat}</div>
+                  </div>
+                  <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+                    <div class="uk-width-expand" uk-leader>Taxes (13%)</div>
+                    <div>${cart.taxes | currencyFormat}</div>
+                  </div>
+                  <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+                    <div class="uk-width-expand" uk-leader>Shipping</div>
+                    <div>¯\_(ツ)_/¯</div>
+                  </div>
+                  <div class="uk-grid-small uk-margin-remove-top" uk-grid>
+                    <div class="uk-width-expand" uk-leader>Total</div>
+                    <div>${cart.total | currencyFormat}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    </div>
-  </div>
+        </div>
+      </div>
 </template>

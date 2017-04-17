@@ -10,9 +10,9 @@
       <div uk-grid>
         <div class="uk-width-2-3">    
           <div class="uk-card uk-card-body uk-card-default">            
-            <h1 class="uk-heading-line uk-text-center"><span>Cart</span></h1>
             <div class="uk-margin-medium">                  
               <cart-item id.bind="id" name.bind="data.name" quantity.bind="data.quantity" price.bind="data.price" repeat.for="[id, data] of items"></cart-item>
+              <div if.bind="items.size < 1">Your cart is empty.</div>
             </div>
           </div>
         </div>

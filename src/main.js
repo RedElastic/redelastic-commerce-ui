@@ -6,7 +6,9 @@ export function configure(aurelia) {
     .feature('resources');
 
   if (environment.debug) {
-    aurelia.use.developmentLogging();
+    aurelia.use
+      .developmentLogging()
+      .plugin('aurelia-validation');
   }
 
   if (environment.testing) {
