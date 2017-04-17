@@ -68,4 +68,17 @@ export class WebAPI {
       }, latency);
     });
   }
+
+  placeOrder(data){
+    this.isRequesting = true;
+    return new Promise(resolve => {
+      setTimeout(() => {
+        let results = {
+          orderId: "KJHDNSF7SDAF87"
+        };
+        resolve(results);
+        this.isRequesting = false;
+      }, latency);
+    });
+  }
 }
