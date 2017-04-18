@@ -1,6 +1,6 @@
 # ReCommerce UI
 
-This is a single-page app developed in (Aurelia)[aurelia.io] that simulates a basic eCommerce user flow:
+This is a single-page app developed in [Aurelia](http://aurelia.io) that simulates a basic eCommerce user flow:
 
 1. Browse items
 2. Add to cart
@@ -18,6 +18,7 @@ This application can either be used stand-alone with fake data or connected to t
 2. Install the following dependencies from npm:
   - numeral.js: `npm install numeral`
   - aurelia-validation: `npm install aurelia-validation --save`
+  - aurelia-mask (for patterned inputs): `npm install aurelia-mask`
 3. Clone this repo
 4. Execute `au run` to demo it
   - To make changes and have the app auto-reload execute `au run --watch`
