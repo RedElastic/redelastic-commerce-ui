@@ -131,6 +131,12 @@
             "main": "aurelia-validation"
           },
           {
+            "name": "aurelia-mask",
+            "main": "masked-input",
+            "path": "../node_modules/aurelia-mask/dist",
+            "resources": []
+          },
+          {
             "name": "aurelia-templating-router",
             "path": "../node_modules/aurelia-templating-router/dist/amd",
             "main": "aurelia-templating-router"
