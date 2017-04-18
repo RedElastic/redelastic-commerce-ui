@@ -18,6 +18,7 @@ This application can either be used stand-alone with fake data or connected to t
 2. Install the following dependencies from npm:
   - numeral.js: `npm install numeral`
   - aurelia-validation: `npm install aurelia-validation --save`
+  - aurelia-mask (for patterned inputs): `npm install aurelia-mask`
 3. Clone this repo
 4. Execute `au run` to demo it
   - To make changes and have the app auto-reload execute `au run --watch`
