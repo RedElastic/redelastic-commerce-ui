@@ -1,6 +1,11 @@
-import {bindable, observable} from 'aurelia-framework';
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {ShoppingCartQuantityUpdated, ProductAddedToCart, ProductAlreadyInCart, ProductRemovedFromCart, CartItemQuantityUpdated} from '../resources/messages';
+import { bindable, observable } from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import {
+  ProductAddedToCart, 
+  ProductAlreadyInCart, 
+  ProductRemovedFromCart, 
+  ProductQuantityChanged, 
+  CartUniqueItemsCountChanged } from '../events/cart-events';
 
 export class Cart {  
   static inject = [EventAggregator];
@@ -15,35 +20,62 @@ export class Cart {
     this.subtotal = 0;
 
     ea.subscribe(ProductRemovedFromCart, msg => {
-      this.items.delete(msg.id);
-      this.ea.publish(new ShoppingCartQuantityUpdated(this.items.size));
-      this.recomputeTotals();
+      this.removeFromCart(msg.id);
     });
 
-    ea.subscribe(ProductAddedToCart, msg => {
-      this.recomputeTotals();
-    });
-
-    ea.subscribe(CartItemQuantityUpdated, msg => {
-      let data = this.items.get(msg.id);
-      data.quantity = msg.quantity;
-      this.items.set(msg.id, data);
-      this.recomputeTotals();
+    ea.subscribe(ProductQuantityChanged, msg => {
+      this.changeQuantity(msg.id, msg.quantity);
     });    
   }
 
-  attached(){
+  // pipeline
+  //--------------------------------------------------------
+  activate(){
+    
+    /*if (!window.localStorage.getItem('cart_items')) {
+      let items = new Map();
+      window.localStorage.setItem('cart_items', items);
+      this.items = items;
+    } else {
+      let obj = window.localStorage.getItem('cart_items');
+      let items = new Map();
+      Object.keys(obj).forEach(key => {
+          items.set(key, obj[key]);
+          items.set(key, obj[key]);
+      });
+      this.items = items;
+    }*/
+
     this.recomputeTotals();
   }
 
+  // actions
+  //--------------------------------------------------------
   addToCart(id, data){
     if (this.items.has(id)) {
       this.ea.publish(new ProductAlreadyInCart(id, data));
-    } else {      
+    } else {
       this.items.set(id, data);
-      this.ea.publish(new ShoppingCartQuantityUpdated(this.items.size));
-      this.ea.publish(new ProductAddedToCart(id, data));            
+      this.ea.publish(new ProductAddedToCart(id, data));
+      this.cartChanged();
     }    
+  }
+
+  removeFromCart(id){
+    this.items.delete(id);
+    this.cartChanged();
+  }
+
+  changeQuantity(id, quantity){
+    let data = this.items.get(id);
+    data.quantity = quantity;
+    this.items.set(id, data);
+    this.cartChanged();
+  }
+
+  cartChanged(){
+    this.ea.publish(new CartUniqueItemsCountChanged(this.items.size));
+    this.recomputeTotals();
   }
 
   recomputeTotals(){

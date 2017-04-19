@@ -1,6 +1,6 @@
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ShoppingCartQuantityUpdated} from '../resources/messages';
+import {CartUniqueItemsCountChanged} from '../events/cart-events';
 
 export class Navigation {
   static inject = [EventAggregator];
@@ -11,8 +11,8 @@ export class Navigation {
     this.ea = ea;
     this.cartCount = 0;
 
-    ea.subscribe(ShoppingCartQuantityUpdated, msg => {
-      this.cartCount = msg.quantity;
+    ea.subscribe(CartUniqueItemsCountChanged, msg => {
+      this.cartCount = msg.count;
     });
   }
 }

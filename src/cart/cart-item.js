@@ -1,6 +1,6 @@
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ProductRemovedFromCart, CartItemQuantityUpdated, ProductAddedToCart} from '../resources/messages';
+import {ProductRemovedFromCart, ProductAddedToCart, ProductQuantityChanged} from '../events/cart-events';
 
 export class CartItem {  
   static inject = [EventAggregator];
@@ -35,14 +35,14 @@ export class CartItem {
   decreaseQuantity(){
     if (this.quantity > 1) {
       this.quantity--;
-      this.ea.publish(new CartItemQuantityUpdated(this.id, this.quantity));
+      this.ea.publish(new ProductQuantityChanged(this.id, this.quantity));
       this.recomputeSubtotal();
     }
   }
 
   increaseQuantity(){
     this.quantity++;
-    this.ea.publish(new CartItemQuantityUpdated(this.id, this.quantity));
+    this.ea.publish(new ProductQuantityChanged(this.id, this.quantity));
     this.recomputeSubtotal();
   }
 }

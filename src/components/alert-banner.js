@@ -1,6 +1,6 @@
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ProductAddedToCart, ProductAlreadyInCart} from '../resources/messages';
+import {ProductAddedToCart, ProductAlreadyInCart} from '../events/cart-events';
 
 export class AlertBanner { 
 

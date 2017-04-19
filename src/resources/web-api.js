@@ -91,22 +91,10 @@ export class WebAPI {
     });
   }
 
-  getProductDetails(id){
-    this.isRequesting = true;
-    return new Promise(resolve => {
-      setTimeout(() => {
-        let found = contacts.filter(x => x.id == id)[0];
-        resolve(JSON.parse(JSON.stringify(found)));
-        this.isRequesting = false;
-      }, latency);
-    });
-  }
-
   placeOrder(data){
     this.isRequesting = true;
     return new Promise(resolve => {
       setTimeout(() => {
-        console.debug(data);
         let results = {
           orderId: "KJHDNSF7SDAF87",
           success: true

@@ -71,7 +71,7 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
-define('cart/cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
+define('cart/cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../events/cart-events'], function (exports, _aureliaFramework, _aureliaEventAggregator, _cartEvents) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -147,7 +147,7 @@ define('cart/cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggregat
       this.ea = ea;
       this.subtotal = 0;
 
-      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
+      ea.subscribe(_cartEvents.ProductAddedToCart, function (msg) {
         _this.recomputeSubtotal();
       });
     }
@@ -161,21 +161,21 @@ define('cart/cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggregat
     };
 
     CartItem.prototype.removeFromCart = function removeFromCart() {
-      this.ea.publish(new _messages.ProductRemovedFromCart(this.id));
+      this.ea.publish(new _cartEvents.ProductRemovedFromCart(this.id));
       this.recomputeSubtotal();
     };
 
     CartItem.prototype.decreaseQuantity = function decreaseQuantity() {
       if (this.quantity > 1) {
         this.quantity--;
-        this.ea.publish(new _messages.CartItemQuantityUpdated(this.id, this.quantity));
+        this.ea.publish(new _cartEvents.ProductQuantityChanged(this.id, this.quantity));
         this.recomputeSubtotal();
       }
     };
 
     CartItem.prototype.increaseQuantity = function increaseQuantity() {
       this.quantity++;
-      this.ea.publish(new _messages.CartItemQuantityUpdated(this.id, this.quantity));
+      this.ea.publish(new _cartEvents.ProductQuantityChanged(this.id, this.quantity));
       this.recomputeSubtotal();
     };
 
@@ -194,7 +194,7 @@ define('cart/cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggregat
     initializer: null
   })), _class);
 });
-define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
+define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../events/cart-events'], function (exports, _aureliaFramework, _aureliaEventAggregator, _cartEvents) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -267,36 +267,45 @@ define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
       this.total = 0;
       this.subtotal = 0;
 
-      ea.subscribe(_messages.ProductRemovedFromCart, function (msg) {
-        _this.items.delete(msg.id);
-        _this.ea.publish(new _messages.ShoppingCartQuantityUpdated(_this.items.size));
-        _this.recomputeTotals();
+      ea.subscribe(_cartEvents.ProductRemovedFromCart, function (msg) {
+        _this.removeFromCart(msg.id);
       });
 
-      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
-        _this.recomputeTotals();
-      });
-
-      ea.subscribe(_messages.CartItemQuantityUpdated, function (msg) {
-        var data = _this.items.get(msg.id);
-        data.quantity = msg.quantity;
-        _this.items.set(msg.id, data);
-        _this.recomputeTotals();
+      ea.subscribe(_cartEvents.ProductQuantityChanged, function (msg) {
+        _this.changeQuantity(msg.id, msg.quantity);
       });
     }
 
-    Cart.prototype.attached = function attached() {
+    Cart.prototype.activate = function activate() {
+
       this.recomputeTotals();
     };
 
     Cart.prototype.addToCart = function addToCart(id, data) {
       if (this.items.has(id)) {
-        this.ea.publish(new _messages.ProductAlreadyInCart(id, data));
+        this.ea.publish(new _cartEvents.ProductAlreadyInCart(id, data));
       } else {
         this.items.set(id, data);
-        this.ea.publish(new _messages.ShoppingCartQuantityUpdated(this.items.size));
-        this.ea.publish(new _messages.ProductAddedToCart(id, data));
+        this.ea.publish(new _cartEvents.ProductAddedToCart(id, data));
+        this.cartChanged();
       }
+    };
+
+    Cart.prototype.removeFromCart = function removeFromCart(id) {
+      this.items.delete(id);
+      this.cartChanged();
+    };
+
+    Cart.prototype.changeQuantity = function changeQuantity(id, quantity) {
+      var data = this.items.get(id);
+      data.quantity = quantity;
+      this.items.set(id, data);
+      this.cartChanged();
+    };
+
+    Cart.prototype.cartChanged = function cartChanged() {
+      this.ea.publish(new _cartEvents.CartUniqueItemsCountChanged(this.items.size));
+      this.recomputeTotals();
     };
 
     Cart.prototype.recomputeTotals = function recomputeTotals() {
@@ -454,7 +463,7 @@ define('cart/confirm',['exports', '../resources/web-api'], function (exports, _w
     return Confirm;
   }(), _class.inject = [_webApi.WebAPI], _temp);
 });
-define('components/alert-banner',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
+define('components/alert-banner',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../events/cart-events'], function (exports, _aureliaFramework, _aureliaEventAggregator, _cartEvents) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -481,12 +490,12 @@ define('components/alert-banner',['exports', 'aurelia-framework', 'aurelia-event
       this.alertType = "";
       this.ea = ea;
 
-      ea.subscribe(_messages.ProductAddedToCart, function (msg) {
+      ea.subscribe(_cartEvents.ProductAddedToCart, function (msg) {
         _this.message = msg.data.name + " was added to your cart.";
         _this.flashAlert("uk-alert-success");
       });
 
-      ea.subscribe(_messages.ProductAlreadyInCart, function (msg) {
+      ea.subscribe(_cartEvents.ProductAlreadyInCart, function (msg) {
         _this.message = msg.data.name + " is already in your cart.";
         _this.flashAlert("uk-alert-warning");
       });
@@ -505,7 +514,7 @@ define('components/alert-banner',['exports', 'aurelia-framework', 'aurelia-event
     return AlertBanner;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('components/navigation',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
+define('components/navigation',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../events/cart-events'], function (exports, _aureliaFramework, _aureliaEventAggregator, _cartEvents) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -574,8 +583,8 @@ define('components/navigation',['exports', 'aurelia-framework', 'aurelia-event-a
     this.ea = ea;
     this.cartCount = 0;
 
-    ea.subscribe(_messages.ShoppingCartQuantityUpdated, function (msg) {
-      _this.cartCount = msg.quantity;
+    ea.subscribe(_cartEvents.CartUniqueItemsCountChanged, function (msg) {
+      _this.cartCount = msg.count;
     });
   }, _class2.inject = [_aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'router', [_aureliaFramework.bindable], {
     enumerable: true,
@@ -734,6 +743,73 @@ define('components/product-list',['exports', '../resources/web-api'], function (
     return ProductList;
   }(), _class.inject = [_webApi.WebAPI], _temp);
 });
+define('events/cart-events',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var ProductQuantityChanged = exports.ProductQuantityChanged = function ProductQuantityChanged(id, quantity) {
+    _classCallCheck(this, ProductQuantityChanged);
+
+    this.id = id;
+    this.quantity = quantity;
+  };
+
+  var ProductRemovedFromCart = exports.ProductRemovedFromCart = function ProductRemovedFromCart(id) {
+    _classCallCheck(this, ProductRemovedFromCart);
+
+    this.id = id;
+  };
+
+  var ProductAddedToCart = exports.ProductAddedToCart = function ProductAddedToCart(id, data) {
+    _classCallCheck(this, ProductAddedToCart);
+
+    this.id = id;
+    this.data = data;
+  };
+
+  var ProductAlreadyInCart = exports.ProductAlreadyInCart = function ProductAlreadyInCart(id, data) {
+    _classCallCheck(this, ProductAlreadyInCart);
+
+    this.id = id;
+    this.data = data;
+  };
+
+  var CartUniqueItemsCountChanged = exports.CartUniqueItemsCountChanged = function CartUniqueItemsCountChanged(count) {
+    _classCallCheck(this, CartUniqueItemsCountChanged);
+
+    this.count = count;
+  };
+});
+define('events/order-events',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var OrderConfirmed = exports.OrderConfirmed = function OrderConfirmed(id, shippingInfo, items) {
+    _classCallCheck(this, OrderConfirmed);
+
+    this.id = id;
+    this.shippingInfo;
+    this.items;
+  };
+});
 define('home/home',['exports'], function (exports) {
   'use strict';
 
@@ -795,60 +871,6 @@ define('resources/index',["exports"], function (exports) {
   });
   exports.configure = configure;
   function configure(config) {}
-});
-define('resources/messages',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var ShoppingCartQuantityUpdated = exports.ShoppingCartQuantityUpdated = function ShoppingCartQuantityUpdated(quantity) {
-    _classCallCheck(this, ShoppingCartQuantityUpdated);
-
-    this.quantity = quantity;
-  };
-
-  var CartItemQuantityUpdated = exports.CartItemQuantityUpdated = function CartItemQuantityUpdated(id, quantity) {
-    _classCallCheck(this, CartItemQuantityUpdated);
-
-    this.id = id;
-    this.quantity = quantity;
-  };
-
-  var ProductAddedToCart = exports.ProductAddedToCart = function ProductAddedToCart(id, data) {
-    _classCallCheck(this, ProductAddedToCart);
-
-    this.id = id;
-    this.data = data;
-  };
-
-  var ProductAlreadyInCart = exports.ProductAlreadyInCart = function ProductAlreadyInCart(id, data) {
-    _classCallCheck(this, ProductAlreadyInCart);
-
-    this.id = id;
-    this.data = data;
-  };
-
-  var ProductRemovedFromCart = exports.ProductRemovedFromCart = function ProductRemovedFromCart(id) {
-    _classCallCheck(this, ProductRemovedFromCart);
-
-    this.id = id;
-  };
-
-  var OrderConfirmed = exports.OrderConfirmed = function OrderConfirmed(id, shippingInfo, items) {
-    _classCallCheck(this, OrderConfirmed);
-
-    this.id = id;
-    this.shippingInfo;
-    this.items;
-  };
 });
 define('resources/web-api',['exports'], function (exports) {
   'use strict';
@@ -955,40 +977,24 @@ define('resources/web-api',['exports'], function (exports) {
       });
     };
 
-    WebAPI.prototype.getProductDetails = function getProductDetails(id) {
+    WebAPI.prototype.placeOrder = function placeOrder(data) {
       var _this2 = this;
 
       this.isRequesting = true;
       return new Promise(function (resolve) {
         setTimeout(function () {
-          var found = contacts.filter(function (x) {
-            return x.id == id;
-          })[0];
-          resolve(JSON.parse(JSON.stringify(found)));
-          _this2.isRequesting = false;
-        }, latency);
-      });
-    };
-
-    WebAPI.prototype.placeOrder = function placeOrder(data) {
-      var _this3 = this;
-
-      this.isRequesting = true;
-      return new Promise(function (resolve) {
-        setTimeout(function () {
-          console.debug(data);
           var results = {
             orderId: "KJHDNSF7SDAF87",
             success: true
           };
           resolve(results);
-          _this3.isRequesting = false;
+          _this2.isRequesting = false;
         }, latency);
       });
     };
 
     WebAPI.prototype.getOrder = function getOrder(id) {
-      var _this4 = this;
+      var _this3 = this;
 
       this.isRequesting = true;
       return new Promise(function (resolve) {
@@ -1000,7 +1006,7 @@ define('resources/web-api',['exports'], function (exports) {
             email: "joe@smith.com"
           };
           resolve(results);
-          _this4.isRequesting = false;
+          _this3.isRequesting = false;
         }, latency);
       });
     };
