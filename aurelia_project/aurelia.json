@@ -131,6 +131,11 @@
             "main": "aurelia-validation"
           },
           {
+            "name": "aurelia-fetch-client",
+            "path": "../node_modules/aurelia-fetch-client/dist/amd",
+            "main": "aurelia-fetch-client"
+          },
+          {
             "name": "aurelia-mask",
             "main": "masked-input",
             "path": "../node_modules/aurelia-mask/dist",
