@@ -11,7 +11,8 @@ export class ProductCard {
   @bindable id = "";
   @bindable name = "";
   @bindable description = ""; 
-  @bindable price;   
+  @bindable price;
+  @bindable img;
   quantity = 1;
     
   addToCart(){

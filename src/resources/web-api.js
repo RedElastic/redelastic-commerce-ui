@@ -57,21 +57,19 @@ export class WebAPI {
   getProductList() {
     this.isRequesting = true;
     return new Promise(resolve => {
-      setTimeout(() => {
         let results = this.http.fetch('api/products')
           .then(response => response.json())
           .then(data => {
             return data.map(x => { return {
-              id:x.id,
-              name:x.name,
-              description:x.description,
-              imgUrl:x.imgUrl,
-              price:x.price
+              id: x.id,
+              name: x.name,
+              description: x.description,
+              imgUrl: x.imgUrl,
+              price: (x.price.dollars + "." + x.price.cents)
             }});
           });
         resolve(results);
-        this.isRequesting = false;
-      }, latency);
+        this.isRequesting = false;      
     });
   }
 
