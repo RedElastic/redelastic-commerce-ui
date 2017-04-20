@@ -33,7 +33,7 @@ let totals = {
   total: 92.07
 }
 
-import { HttpClient } from 'aurelia-fetch-client';
+import { HttpClient, json } from 'aurelia-fetch-client';
 
 export class WebAPI {
   static inject = [HttpClient];
@@ -57,33 +57,33 @@ export class WebAPI {
   getProductList() {
     this.isRequesting = true;
     return new Promise(resolve => {
-        let results = this.http.fetch('api/products')
-          .then(response => response.json())
-          .then(data => {
-            return data.map(x => { return {
+      let results = this.http.fetch('api/products')
+        .then(response => response.json())
+        .then(data => {
+          return data.map(x => {
+            return {
               id: x.id,
               name: x.name,
               description: x.description,
               imgUrl: x.imgUrl,
               price: (x.price.dollars + "." + x.price.cents)
-            }});
+            }
           });
-        resolve(results);
-        this.isRequesting = false;      
+        });
+      resolve(results);
+      this.isRequesting = false;
     });
   }
 
   placeOrder(data) {
     this.isRequesting = true;
     return new Promise(resolve => {
-      setTimeout(() => {
-        let results = {
-          orderId: "KJHDNSF7SDAF87",
-          success: true
-        };
-        resolve(results);
-        this.isRequesting = false;
-      }, latency);
+      let results = this.http.fetch('api/checkout', {
+        method: 'post',
+        body: json(data)
+      }).then(response => response.json());      
+      resolve(results);
+      this.isRequesting = false;
     });
   }
 

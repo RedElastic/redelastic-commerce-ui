@@ -31,21 +31,6 @@ export class Cart {
   // pipeline
   //--------------------------------------------------------
   activate(){
-    
-    /*if (!window.localStorage.getItem('cart_items')) {
-      let items = new Map();
-      window.localStorage.setItem('cart_items', items);
-      this.items = items;
-    } else {
-      let obj = window.localStorage.getItem('cart_items');
-      let items = new Map();
-      Object.keys(obj).forEach(key => {
-          items.set(key, obj[key]);
-          items.set(key, obj[key]);
-      });
-      this.items = items;
-    }*/
-
     this.recomputeTotals();
   }
 

@@ -71,16 +71,22 @@ export class Checkout {
           postalCode: this.postalCode
         };        
 
+        var items = Array.from(this.cart.items).map(([key, value]) => ({ 
+          "productId": key,
+          "quantity": value.quantity,
+          "price": value.price,
+          "subtotal": value.price * value.quantity
+        }));
+
         let order = { 
           shippingInfo: shippingInfo, 
-          items: this.cart.items
+          items: items
         };
 
         this.api.placeOrder(order).then(results => {
-          if (results.success == true) {
-            this.router.navigateToRoute("confirm", { id: results.orderId });
-            // TODO clear shopping cart  
-          }
+          //if (results.success == true) {
+            this.router.navigateToRoute("confirm", { id: results });
+          //}
         });                
       }
     });
