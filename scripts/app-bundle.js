@@ -397,7 +397,7 @@ define('cart/checkout',['exports', './cart', 'aurelia-validation', 'aurelia-rout
           var shippingInfo = {
             firstName: _this.firstName,
             lastName: _this.lastName,
-            email: _this.email,
+            emailAddress: _this.emailAddress,
             phone: _this.phone,
             street: _this.street,
             apartment: _this.apartment,
@@ -423,8 +423,8 @@ define('cart/checkout',['exports', './cart', 'aurelia-validation', 'aurelia-rout
             items: items
           };
 
-          _this.api.placeOrder(order).then(function (results) {
-            _this.router.navigateToRoute("confirm", { id: results });
+          _this.api.placeOrder(order).then(function (uuid) {
+            _this.router.navigateToRoute("confirm", { id: uuid });
           });
         }
       });
@@ -461,10 +461,10 @@ define('cart/confirm',['exports', '../resources/web-api'], function (exports, _w
 
       this.id = params.id;
       this.api.getOrder(params.id).then(function (results) {
-        _this.email = results.email;
         _this.shippingInfo = results.shippingInfo;
         _this.items = results.items;
-        _this.totals = results.totals;
+        _this.totals = results.orderTotals;
+        console.debug(_this.shippingInfo);
       });
     };
 
@@ -885,8 +885,8 @@ define('resources/index',["exports"], function (exports) {
   exports.configure = configure;
   function configure(config) {}
 });
-define('resources/web-api',["exports", "aurelia-fetch-client"], function (exports, _aureliaFetchClient) {
-  "use strict";
+define('resources/web-api',['exports', 'aurelia-fetch-client'], function (exports, _aureliaFetchClient) {
+  'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -900,38 +900,6 @@ define('resources/web-api',["exports", "aurelia-fetch-client"], function (export
   }
 
   var _class, _temp;
-
-  var latency = 200;
-
-  var shippingInfo = {
-    firstName: "Joe",
-    lastName: "Smith",
-    street: "250 University Avenue",
-    apartmentNum: "227",
-    city: "Toronto",
-    province: "Ontario",
-    postalCode: "M5A0E3"
-  };
-
-  var items = [{
-    id: "1",
-    name: 'Radical Coffee Maker',
-    price: 42.50,
-    quantity: 1,
-    subtotal: 42.50
-  }, {
-    id: "2",
-    name: 'The Worst Shit Ever',
-    price: 12.99,
-    quantity: 3,
-    subtotal: 38.97
-  }];
-
-  var totals = {
-    subtotal: 81.48,
-    taxes: 10.59,
-    total: 92.07
-  };
 
   var WebAPI = exports.WebAPI = (_temp = _class = function () {
     function WebAPI(http) {
@@ -978,7 +946,7 @@ define('resources/web-api',["exports", "aurelia-fetch-client"], function (export
 
       this.isRequesting = true;
       return new Promise(function (resolve) {
-        var results = _this2.http.fetch('api/checkout', {
+        var results = _this2.http.fetch('api/order', {
           method: 'post',
           body: (0, _aureliaFetchClient.json)(data)
         }).then(function (response) {
@@ -994,16 +962,30 @@ define('resources/web-api',["exports", "aurelia-fetch-client"], function (export
 
       this.isRequesting = true;
       return new Promise(function (resolve) {
-        setTimeout(function () {
-          var results = {
-            shippingInfo: shippingInfo,
-            items: items,
-            totals: totals,
-            email: "joe@smith.com"
+        var results = _this3.http.fetch('api/order/' + id).then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          return {
+            shippingInfo: data.shippingInfo,
+            items: data.items,
+            orderTotals: data.totals
           };
-          resolve(results);
-          _this3.isRequesting = false;
-        }, latency);
+        });
+        resolve(results);
+        _this3.isRequesting = false;
+      });
+    };
+
+    WebAPI.prototype.getProduct = function getProduct(id) {
+      var _this4 = this;
+
+      this.isRequesting = true;
+      return new Promise(function (resolve) {
+        var results = _this4.http.fetch('api/product/' + id).then(function (response) {
+          return response.json();
+        });
+        resolve(results);
+        _this4.isRequesting = false;
       });
     };
 
@@ -1011,14 +993,14 @@ define('resources/web-api',["exports", "aurelia-fetch-client"], function (export
   }(), _class.inject = [_aureliaFetchClient.HttpClient], _temp);
 });
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./components/alert-banner\"></require><require from=\"./components/navigation\"></require><require from=\"./components/footer.html\"></require><navigation router.bind=\"router\"></navigation><alert-banner></alert-banner><router-view></router-view><footer></footer></template>"; });
+define('text!cart/cart-item.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-margin-medium-bottom\"><div uk-grid><div class=\"uk-width-1-2\"><h3 class=\"uk-margin-small-bottom\">${name}</h3></div><div class=\"uk-width-1-2 uk-text-right\"><button class=\"uk-button uk-button-small uk-button-default\" click.delegate=\"decreaseQuantity()\">-</button> <button class=\"uk-button uk-button-small uk-button-default\" click.delegate=\"increaseQuantity()\">+</button></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Quantity</div><div><span>${quantity}</span></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (each)</div><div>${price | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (subtotal)</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-margin-small-top\" uk-grid><div class=\"uk-width-1-2\"></div><div class=\"uk-width-1-2 uk-text-right\"><button class=\"uk-button uk-button-small uk-button-danger\" click.delegate=\"removeFromCart()\">x</button></div></div></div></template>"; });
+define('text!cart/cart.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><require from=\"./cart-item\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><div class=\"uk-margin-medium\"><cart-item id.bind=\"id\" name.bind=\"data.name\" quantity.bind=\"data.quantity\" price.bind=\"data.price\" repeat.for=\"[id, data] of items\"></cart-item><div if.bind=\"items.size < 1\">Your cart is empty.</div></div></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>¯\\_(ツ)_/¯</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${total | currencyFormat}</div></div></div><a route-href=\"route: checkout\" class=\"uk-button uk-width-1-1 uk-button-primary\">Checkout</a></div></div></div></div></div></template>"; });
+define('text!cart/checkout.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><require from=\"aurelia-mask\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h2 class=\"uk-heading-line uk-text-center\"><span>Shipping Information</span></h2><div class=\"uk-margin-medium\"><form submit.delegate=\"submit()\" uk-grid><div class=\"uk-width-1-2\" validation-errors.bind=\"firstNameErrors\"><label class=\"uk-form-label\" for=\"first-name\">First Name</label><div class=\"uk-form-controls\"><input class.bind=\"firstNameErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"first-name\" type=\"text\" value.bind=\"firstName & validate\"></div></div><div class=\"uk-width-1-2\" validation-errors.bind=\"lastNameErrors\"><label class=\"uk-form-label\" for=\"last-name\">Last Name</label><div class=\"uk-form-controls\"><input class.bind=\"lastNameErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"last-name\" type=\"text\" value.bind=\"lastName & validate\"></div></div><div class=\"uk-width-2-3\" validation-errors.bind=\"emailErrors\"><label class=\"uk-form-label\" for=\"emailAddress\">Email Address</label><div class=\"uk-form-controls\"><input class.bind=\"emailErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"emailAddress\" type=\"text\" value.bind=\"emailAddress & validate\"></div></div><div class=\"uk-width-1-3\" validation-errors.bind=\"phoneErrors\"><label class=\"uk-form-label\" for=\"phone\">Phone</label><div class=\"uk-form-controls\"><input class.bind=\"phoneErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"phone\" type=\"text\" masked=\"value.bind: phone & validate; mask: (999) 999-9999;\"></div></div><div class=\"uk-width-3-4\" validation-errors.bind=\"streetErrors\"><label class=\"uk-form-label\" for=\"email\">Street and Number</label><div class=\"uk-form-controls\"><input class.bind=\"streetErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"street\" type=\"text\" value.bind=\"street & validate\"></div></div><div class=\"uk-width-1-4\" validation-errors.bind=\"apartmentNumErrors\"><label class=\"uk-form-label\" for=\"email\">Apartment</label><div class=\"uk-form-controls\"><input class.bind=\"apartmentErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"apartment\" type=\"text\" value.bind=\"apartment\"></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">Country</label><div class=\"uk-form-controls\"><select class=\"uk-select\" id=\"country\" value.bind=\"country\"><option repeat.for=\"country of countries\" value.bind=\"country\">${country}</option></select></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"province\">Province</label><div class=\"uk-form-controls\"><select class=\"uk-select\" id=\"province\" value.bind=\"province\"><option repeat.for=\"province of provinces\" value.bind=\"province\">${province}</option></select></div></div><div class=\"uk-width-1-2\" validation-errors.bind=\"cityErrors\"><label class=\"uk-form-label\" for=\"city\">City</label><div class=\"uk-form-controls\"><input class.bind=\"cityErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"city\" type=\"text\" value.bind=\"city & validate\"></div></div><div class=\"uk-width-1-2\" validation-errors.bind=\"postalCodeErrors\"><label class=\"uk-form-label\" for=\"postalCode\">Postal Code</label><div class=\"uk-form-controls\"><input class.bind=\"postalCodeErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"postalCode\" type=\"text\" masked=\"value.bind: postalCode & validate; mask: A9A 9A9;\"></div></div><div class=\"uk-width-1-1\"><div repeat.for=\"error of validator.errors\" class=\"uk-alert-danger\" uk-alert><p>${error.message}</p></div></div><div class=\"uk-width-1-1\"><button type=\"submit\" class=\"uk-button uk-button-primary uk-width-1-1 uk-margin-medium-top\">Pay & Checkout</button><p class=\"uk-text-small uk-text-center\">In demo land, everything is free! No need to enter your credit card details.</p><div></div></div></form></div></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${cart.subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${cart.taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>¯\\_(ツ)_/¯</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${cart.total | currencyFormat}</div></div></div></div></div></div></div></div></template>"; });
+define('text!cart/confirm.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div class=\"uk-alert-success uk-margin-small-bottom\" uk-alert><p>Your order has been confirmed! Your order ID is <strong>${id}</strong>.</p></div><div class=\"uk-alert-primary uk-margin-medium-bottom\" uk-alert>A confirmation email has been sent to <strong>${shippingInfo.emailAddress}</strong>. Expected shipping date is <strong>a state of mind</strong>.</div><div uk-grid><div class=\"uk-width-1-3\" style=\"font-size:.8em\"><div class=\"uk-card uk-card-body uk-card-default\"><h3>Shipping Details</h3><table class=\"uk-table uk-table-small\"><tbody><tr><td>First Name</td><td>${shippingInfo.firstName}</td></tr><tr><td>Last Name</td><td>${shippingInfo.lastName}</td></tr><tr><td>Street</td><td>${shippingInfo.street}</td></tr><tr><td>Apartment</td><td>${shippingInfo.apartmentNum}</td></tr><tr><td>City</td><td>${shippingInfo.city}</td></tr><tr><td>Province</td><td>${shippingInfo.province}</td></tr><tr><td>Postal Code</td><td>${shippingInfo.postalCode}</td></tr></tbody></table></div></div><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h3>Order Details</h3><table class=\"uk-table uk-table-striped\"><thead><tr><th>Item</th><th>Quantity</th><th>Price (each)</th><th>Subtotal</th></tr></thead><tfoot><tr><th></th><th></th><th>Subtotal</th><th style=\"color:#000;font-size:1.1em\">${totals.subtotal | currencyFormat }</th></tr><tr><th></th><th></th><th>Taxes (13%)</th><th style=\"color:#000;font-size:1.1em\">${totals.taxes | currencyFormat }</th></tr><tr><th></th><th></th><th>Total</th><th style=\"font-weight:700;color:#000;font-size:1.1em\">${totals.total | currencyFormat }</th></tr></tfoot><tbody><tr repeat.for=\"item of items\"><td>${item.name}</td><td>${item.quantity}</td><td>${item.price | currencyFormat }</td><td>${item.subtotal | currencyFormat }</td></tr></tbody></table></div></div></div></div></div></template>"; });
 define('text!components/alert-banner.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"enabled\" class=\"uk-card uk-card-body uk-position-top-right uk-position-fixed\" style=\"z-index:980;width:500px;top:60px\"><div class=\"${alertType} uk-box-shadow-medium\" uk-alert><a class=\"uk-alert-close\" uk-close></a><p>${message}</p></div></div></template>"; });
 define('text!components/footer.html', ['module'], function(module) { module.exports = "<template><div class=\"uk-section uk-padding-large uk-section-secondary\"><div class=\"uk-container uk-text-center\">A demo by your friends at RedElastic.</div></div></template>"; });
 define('text!components/navigation.html', ['module'], function(module) { module.exports = "<template><nav class=\"uk-navbar-container\" uk-navbar><div class=\"uk-navbar-center\"><div class=\"uk-navbar-left\"><ul class=\"uk-navbar-nav\"></ul></div><a route-href=\"route: home\" class=\"uk-navbar-item uk-logo\">ReCommerce</a><div class=\"uk-navbar-right\"><ul class=\"uk-navbar-nav\"><li><a route-href=\"route: cart\" uk-icon=\"icon: cart\"><span class=\"uk-badge\">${cartCount}</span></a></li></ul></div></div></nav></template>"; });
 define('text!components/product-card.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-card uk-card-body uk-card-default product-card\"><div class=\"uk-card-media-top\"><img width=\"600\" height=\"400\" src=\"${img}\" alt=\"\"></div><h3 class=\"uk-card-title uk-margin-small-top uk-margin-small-bottom\">${name}</h3><p class=\"uk-text-small\">${price | currencyFormat}</p><div class=\"uk-margin-small-top\">${description}</div></div><button click.delegate=\"addToCart()\" class=\"uk-button uk-button-primary uk-width-1-1\">Add to Cart</button><div class=\"uk-child-width-1-3 uk-grid-collapse uk-margin-top\" uk-grid><div class=\"uk-text-left uk-margin-remove\"><button click.delegate=\"decreaseQuantity()\" class=\"uk-button uk-button-small uk-button-default\">-</button></div><div class=\"uk-text-left uk-text-small uk-margin-remove\">Quantity: <span class=\"uk-text-bold\">${quantity}</span></div><div class=\"uk-text-right uk-margin-remove\"><button click.delegate=\"increaseQuantity()\" class=\"uk-button uk-button-small uk-button-default\">+</button></div></div></template>"; });
 define('text!components/product-list.html', ['module'], function(module) { module.exports = "<template><require from=\"./product-card\"></require><div class=\"product-list uk-grid-large\" uk-grid uk-height-match=\"target: > div > .product-card\"><div repeat.for=\"product of products\" class=\"uk-width-1-2@s uk-width-1-3@m\"><product-card id=\"${product.id}\" name=\"${product.name}\" description=\"${product.description}\" price=\"${product.price}\" img=\"${product.imgUrl}\"></product-card></div></div></template>"; });
-define('text!cart/cart-item.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-margin-medium-bottom\"><div uk-grid><div class=\"uk-width-1-2\"><h3 class=\"uk-margin-small-bottom\">${name}</h3></div><div class=\"uk-width-1-2 uk-text-right\"><button class=\"uk-button uk-button-small uk-button-default\" click.delegate=\"decreaseQuantity()\">-</button> <button class=\"uk-button uk-button-small uk-button-default\" click.delegate=\"increaseQuantity()\">+</button></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Quantity</div><div><span>${quantity}</span></div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (each)</div><div>${price | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Price (subtotal)</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-margin-small-top\" uk-grid><div class=\"uk-width-1-2\"></div><div class=\"uk-width-1-2 uk-text-right\"><button class=\"uk-button uk-button-small uk-button-danger\" click.delegate=\"removeFromCart()\">x</button></div></div></div></template>"; });
-define('text!cart/cart.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><require from=\"./cart-item\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><div class=\"uk-margin-medium\"><cart-item id.bind=\"id\" name.bind=\"data.name\" quantity.bind=\"data.quantity\" price.bind=\"data.price\" repeat.for=\"[id, data] of items\"></cart-item><div if.bind=\"items.size < 1\">Your cart is empty.</div></div></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>¯\\_(ツ)_/¯</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${total | currencyFormat}</div></div></div><a route-href=\"route: checkout\" class=\"uk-button uk-width-1-1 uk-button-primary\">Checkout</a></div></div></div></div></div></template>"; });
-define('text!cart/checkout.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><require from=\"aurelia-mask\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div uk-grid><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h2 class=\"uk-heading-line uk-text-center\"><span>Shipping Information</span></h2><div class=\"uk-margin-medium\"><form submit.delegate=\"submit()\" uk-grid><div class=\"uk-width-1-2\" validation-errors.bind=\"firstNameErrors\"><label class=\"uk-form-label\" for=\"first-name\">First Name</label><div class=\"uk-form-controls\"><input class.bind=\"firstNameErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"first-name\" type=\"text\" value.bind=\"firstName & validate\"></div></div><div class=\"uk-width-1-2\" validation-errors.bind=\"lastNameErrors\"><label class=\"uk-form-label\" for=\"last-name\">Last Name</label><div class=\"uk-form-controls\"><input class.bind=\"lastNameErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"last-name\" type=\"text\" value.bind=\"lastName & validate\"></div></div><div class=\"uk-width-2-3\" validation-errors.bind=\"emailErrors\"><label class=\"uk-form-label\" for=\"email\">Email Address</label><div class=\"uk-form-controls\"><input class.bind=\"emailErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"email\" type=\"text\" value.bind=\"email & validate\"></div></div><div class=\"uk-width-1-3\" validation-errors.bind=\"phoneErrors\"><label class=\"uk-form-label\" for=\"phone\">Phone</label><div class=\"uk-form-controls\"><input class.bind=\"phoneErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"phone\" type=\"text\" masked=\"value.bind: phone & validate; mask: (999) 999-9999;\"></div></div><div class=\"uk-width-3-4\" validation-errors.bind=\"streetErrors\"><label class=\"uk-form-label\" for=\"email\">Street and Number</label><div class=\"uk-form-controls\"><input class.bind=\"streetErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"street\" type=\"text\" value.bind=\"street & validate\"></div></div><div class=\"uk-width-1-4\" validation-errors.bind=\"apartmentNumErrors\"><label class=\"uk-form-label\" for=\"email\">Apartment</label><div class=\"uk-form-controls\"><input class.bind=\"apartmentErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"apartment\" type=\"text\" value.bind=\"apartment\"></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"country\">Country</label><div class=\"uk-form-controls\"><select class=\"uk-select\" id=\"country\" value.bind=\"country\"><option repeat.for=\"country of countries\" value.bind=\"country\">${country}</option></select></div></div><div class=\"uk-width-1-2\"><label class=\"uk-form-label\" for=\"province\">Province</label><div class=\"uk-form-controls\"><select class=\"uk-select\" id=\"province\" value.bind=\"province\"><option repeat.for=\"province of provinces\" value.bind=\"province\">${province}</option></select></div></div><div class=\"uk-width-1-2\" validation-errors.bind=\"cityErrors\"><label class=\"uk-form-label\" for=\"city\">City</label><div class=\"uk-form-controls\"><input class.bind=\"cityErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"city\" type=\"text\" value.bind=\"city & validate\"></div></div><div class=\"uk-width-1-2\" validation-errors.bind=\"postalCodeErrors\"><label class=\"uk-form-label\" for=\"postalCode\">Postal Code</label><div class=\"uk-form-controls\"><input class.bind=\"postalCodeErrors.length ? 'uk-input uk-form-danger' : 'uk-input'\" id=\"postalCode\" type=\"text\" masked=\"value.bind: postalCode & validate; mask: A9A 9A9;\"></div></div><div class=\"uk-width-1-1\"><div repeat.for=\"error of validator.errors\" class=\"uk-alert-danger\" uk-alert><p>${error.message}</p></div></div><div class=\"uk-width-1-1\"><button type=\"submit\" class=\"uk-button uk-button-primary uk-width-1-1 uk-margin-medium-top\">Pay & Checkout</button><p class=\"uk-text-small uk-text-center\">In demo land, everything is free! No need to enter your credit card details.</p><div></div></div></form></div></div></div><div class=\"uk-width-1-3\"><div class=\"uk-card uk-card-body uk-card-primary\"><h3>Your Order</h3><div id=\"totals\" class=\"uk-margin-medium-bottom\"><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Subtotal</div><div>${cart.subtotal | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Taxes (13%)</div><div>${cart.taxes | currencyFormat}</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Shipping</div><div>¯\\_(ツ)_/¯</div></div><div class=\"uk-grid-small uk-margin-remove-top\" uk-grid><div class=\"uk-width-expand\" uk-leader>Total</div><div>${cart.total | currencyFormat}</div></div></div></div></div></div></div></div></template>"; });
-define('text!cart/confirm.html', ['module'], function(module) { module.exports = "<template><require from=\"../resources/currency-format\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><div class=\"uk-alert-success uk-margin-small-bottom\" uk-alert><p>Your order has been confirmed! Your order ID is <strong>${id}</strong>.</p></div><div class=\"uk-alert-primary uk-margin-medium-bottom\" uk-alert>A confirmation email has been sent to <strong>${email}</strong>. Expected shipping date is <strong>a state of mind</strong>.</div><div uk-grid><div class=\"uk-width-1-3\" style=\"font-size:.8em\"><div class=\"uk-card uk-card-body uk-card-default\"><h3>Shipping Details</h3><table class=\"uk-table uk-table-small\"><tbody><tr><td>First Name</td><td>${shippingInfo.firstName}</td></tr><tr><td>Last Name</td><td>${shippingInfo.lastName}</td></tr><tr><td>Street</td><td>${shippingInfo.street}</td></tr><tr><td>Apartment</td><td>${shippingInfo.apartmentNum}</td></tr><tr><td>City</td><td>${shippingInfo.city}</td></tr><tr><td>Province</td><td>${shippingInfo.province}</td></tr><tr><td>Postal Code</td><td>${shippingInfo.postalCode}</td></tr></tbody></table></div></div><div class=\"uk-width-2-3\"><div class=\"uk-card uk-card-body uk-card-default\"><h3>Order Details</h3><table class=\"uk-table uk-table-striped\"><thead><tr><th>Item</th><th>Quantity</th><th>Price (each)</th><th>Subtotal</th></tr></thead><tfoot><tr><th></th><th></th><th>Subtotal</th><th style=\"color:#000;font-size:1.1em\">${totals.subtotal | currencyFormat }</th></tr><tr><th></th><th></th><th>Taxes (13%)</th><th style=\"color:#000;font-size:1.1em\">${totals.taxes | currencyFormat }</th></tr><tr><th></th><th></th><th>Total</th><th style=\"font-weight:700;color:#000;font-size:1.1em\">${totals.total | currencyFormat }</th></tr></tfoot><tbody><tr repeat.for=\"item of items\"><td>${item.name}</td><td>${item.quantity}</td><td>${item.price | currencyFormat }</td><td>${item.subtotal | currencyFormat }</td></tr></tbody></table></div></div></div></div></div></template>"; });
 define('text!home/home.html', ['module'], function(module) { module.exports = "<template><require from=\"../components/product-list\"></require><div class=\"uk-section uk-padding-large uk-section-default\"><div class=\"uk-container\"><product-list></product-list></div></div></template>"; });
 //# sourceMappingURL=app-bundle.js.map

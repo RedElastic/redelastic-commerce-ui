@@ -8,7 +8,7 @@ export class Checkout {
 
   firstName;
   lastName;
-  email;
+  emailAddress;
   phone;
   street;
   apartment;
@@ -61,7 +61,7 @@ export class Checkout {
         let shippingInfo = {
           firstName: this.firstName,
           lastName: this.lastName,
-          email: this.email,
+          emailAddress: this.emailAddress,
           phone: this.phone,
           street: this.street,
           apartment: this.apartment,
@@ -83,10 +83,8 @@ export class Checkout {
           items: items
         };
 
-        this.api.placeOrder(order).then(results => {
-          //if (results.success == true) {
-            this.router.navigateToRoute("confirm", { id: results });
-          //}
+        this.api.placeOrder(order).then(uuid => {
+          this.router.navigateToRoute("confirm", { id: uuid });
         });                
       }
     });

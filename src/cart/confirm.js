@@ -12,10 +12,10 @@ export class Confirm {
   activate(params) {
     this.id = params.id;
     this.api.getOrder(params.id).then(results => {      
-        this.email = results.email;
         this.shippingInfo = results.shippingInfo;
         this.items = results.items;
-        this.totals = results.totals;      
-    });    
+        this.totals = results.orderTotals;
+        console.debug(this.shippingInfo);   
+    });     
   }
 }
