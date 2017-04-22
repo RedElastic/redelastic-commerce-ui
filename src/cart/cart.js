@@ -27,24 +27,36 @@ export class Cart {
 
     ea.subscribe(ProductQuantityChanged, msg => {
       this.changeQuantity(msg.id, msg.quantity);
-    });    
-  }
+    });  
 
-  // pipeline
-  //--------------------------------------------------------
-  activate(){
     if (window.localStorage.getItem("userId") === null) {
       window.localStorage.setItem("userId", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
       }));
     } 
+
+    this.api.getCart(window.localStorage.getItem("userId")).then(cart => {
+      let newCart = new Map();
+      cart.forEach(function (item) {
+        newCart.set(item.key, item.value);
+      })
+      this.items = newCart;
+      this.ea.publish(new CartUniqueItemsCountChanged(this.items.size));
+      this.recomputeTotals();
+    });      
+  }
+
+  // pipeline
+  //--------------------------------------------------------
+  activate(){
     this.recomputeTotals();
   }
 
   // actions
   //--------------------------------------------------------
   addToCart(id, data){
+    console.debug(data);
     if (this.items.has(id)) {
       this.ea.publish(new ProductAlreadyInCart(id, data));
     } else {
@@ -67,6 +79,7 @@ export class Cart {
   }
 
   cartChanged(){
+    console.debug(this.items);
     this.ea.publish(new CartUniqueItemsCountChanged(this.items.size));
     this.api.updateCart(window.localStorage.getItem("userId"), this.items);
     this.recomputeTotals();

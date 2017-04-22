@@ -74,6 +74,29 @@ export class WebAPI {
     })
   }
 
+  getCart(userId) {
+    this.isRequesting = true;
+    return new Promise(resolve => {
+      let results = this.http.fetch('api/cart?userId=' + userId)
+        .then(response => response.json())
+        .then(data => {
+          return data.map(x => {
+            return {
+              key: x.productId,
+              value: {
+                name: x.name,
+                description: x.description,
+                quantity: x.quantity,
+                price: x.price
+              }              
+            }
+          });
+        });
+      resolve(results);
+      this.isRequesting = false;
+    });
+  }  
+
   getOrder(id) {
     this.isRequesting = true;
     return new Promise(resolve => {
