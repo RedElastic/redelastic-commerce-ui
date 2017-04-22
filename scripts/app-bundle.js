@@ -194,7 +194,7 @@ define('cart/cart-item',['exports', 'aurelia-framework', 'aurelia-event-aggregat
     initializer: null
   })), _class);
 });
-define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../events/cart-events'], function (exports, _aureliaFramework, _aureliaEventAggregator, _cartEvents) {
+define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', '../resources/web-api', '../events/cart-events'], function (exports, _aureliaFramework, _aureliaEventAggregator, _webApi, _cartEvents) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -254,7 +254,7 @@ define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
   var _desc, _value, _class, _descriptor, _class2, _temp;
 
   var Cart = exports.Cart = (_class = (_temp = _class2 = function () {
-    function Cart(ea) {
+    function Cart(ea, api) {
       var _this = this;
 
       _classCallCheck(this, Cart);
@@ -262,6 +262,7 @@ define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
       _initDefineProp(this, 'items', _descriptor, this);
 
       this.ea = ea;
+      this.api = api;
       this.taxes = 0;
       this.shipping = 0;
       this.total = 0;
@@ -277,6 +278,13 @@ define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
     }
 
     Cart.prototype.activate = function activate() {
+      if (window.localStorage.getItem("userId") === null) {
+        window.localStorage.setItem("userId", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+          var r = Math.random() * 16 | 0,
+              v = c == 'x' ? r : r & 0x3 | 0x8;
+          return v.toString(16);
+        }));
+      }
       this.recomputeTotals();
     };
 
@@ -304,6 +312,7 @@ define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
 
     Cart.prototype.cartChanged = function cartChanged() {
       this.ea.publish(new _cartEvents.CartUniqueItemsCountChanged(this.items.size));
+      this.api.updateCart(window.localStorage.getItem("userId"), this.items);
       this.recomputeTotals();
     };
 
@@ -333,7 +342,7 @@ define('cart/cart',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
     };
 
     return Cart;
-  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'items', [_aureliaFramework.observable], {
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _webApi.WebAPI], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'items', [_aureliaFramework.observable], {
     enumerable: true,
     initializer: function initializer() {
       return new Map();
@@ -954,6 +963,28 @@ define('resources/web-api',['exports', 'aurelia-fetch-client'], function (export
         });
         resolve(results);
         _this2.isRequesting = false;
+      });
+    };
+
+    WebAPI.prototype.updateCart = function updateCart(userId, cartItems) {
+      var cart = [];
+
+      Array.from(cartItems.keys()).forEach(function (key) {
+        cart.push({
+          "productId": key,
+          "quantity": cartItems.get(key).quantity,
+          "price": cartItems.get(key).price
+        });
+      });
+
+      var b = {
+        "userId": userId,
+        "items": cart
+      };
+
+      this.http.fetch('api/cart', {
+        method: 'put',
+        body: (0, _aureliaFetchClient.json)(b)
       });
     };
 

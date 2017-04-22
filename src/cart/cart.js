@@ -1,5 +1,6 @@
 import { bindable, observable } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
+import {WebAPI} from '../resources/web-api';
 import {
   ProductAddedToCart, 
   ProductAlreadyInCart, 
@@ -8,12 +9,13 @@ import {
   CartUniqueItemsCountChanged } from '../events/cart-events';
 
 export class Cart {  
-  static inject = [EventAggregator];
+  static inject = [EventAggregator, WebAPI];
 
   @observable items = new Map();
   
-  constructor(ea){
+  constructor(ea, api){
     this.ea = ea;
+    this.api = api;
     this.taxes = 0;
     this.shipping = 0;
     this.total = 0;
@@ -31,6 +33,12 @@ export class Cart {
   // pipeline
   //--------------------------------------------------------
   activate(){
+    if (window.localStorage.getItem("userId") === null) {
+      window.localStorage.setItem("userId", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+      }));
+    } 
     this.recomputeTotals();
   }
 
@@ -60,6 +68,7 @@ export class Cart {
 
   cartChanged(){
     this.ea.publish(new CartUniqueItemsCountChanged(this.items.size));
+    this.api.updateCart(window.localStorage.getItem("userId"), this.items);
     this.recomputeTotals();
   }
 

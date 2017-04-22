@@ -52,6 +52,28 @@ export class WebAPI {
     });
   }
 
+  updateCart(userId, cartItems) {    
+    let cart = [];    
+    
+    Array.from(cartItems.keys()).forEach(function (key) {
+      cart.push({
+        "productId" : key,
+        "quantity" : cartItems.get(key).quantity,
+        "price" : cartItems.get(key).price
+      });
+    });
+
+    let b = {
+      "userId" : userId,
+      "items" : cart
+    };
+
+    this.http.fetch('api/cart', {
+      method: 'put',
+      body: json(b)
+    })
+  }
+
   getOrder(id) {
     this.isRequesting = true;
     return new Promise(resolve => {
