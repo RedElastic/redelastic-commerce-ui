@@ -84,7 +84,10 @@ export class Checkout {
         };
 
         this.api.placeOrder(order).then(uuid => {
-          this.router.navigateToRoute("confirm", { id: uuid });
+          this.api.deleteCart(window.localStorage.getItem("userId")).then(x => {
+            this.cart.reloadCartFromServer();
+            this.router.navigateToRoute("confirm", { id: uuid });
+          });
         });                
       }
     });

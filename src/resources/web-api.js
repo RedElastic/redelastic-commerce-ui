@@ -97,6 +97,17 @@ export class WebAPI {
     });
   }  
 
+  deleteCart(userId) {    
+    this.isRequesting = true;
+    return new Promise(resolve => {
+      let results = this.http.fetch('api/cart?userId=' + userId, {
+        method: 'delete'
+      })
+      resolve(results);
+      this.isRequesting = false;
+    });
+  }
+
   getOrder(id) {
     this.isRequesting = true;
     return new Promise(resolve => {

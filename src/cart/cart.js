@@ -36,6 +36,16 @@ export class Cart {
       }));
     } 
 
+    this.reloadCartFromServer();     
+  }
+
+  // pipeline
+  //--------------------------------------------------------
+  activate(){
+    this.recomputeTotals();
+  }
+
+  reloadCartFromServer() {
     this.api.getCart(window.localStorage.getItem("userId")).then(cart => {
       let newCart = new Map();
       cart.forEach(function (item) {
@@ -44,13 +54,7 @@ export class Cart {
       this.items = newCart;
       this.ea.publish(new CartUniqueItemsCountChanged(this.items.size));
       this.recomputeTotals();
-    });      
-  }
-
-  // pipeline
-  //--------------------------------------------------------
-  activate(){
-    this.recomputeTotals();
+    });
   }
 
   // actions
